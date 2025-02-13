@@ -56,7 +56,7 @@ def main():
 	u_fire_prism_focused = unit('Fire Prism focused',[m_fire_prism_focused],tag='vehicle',cost=160)
 
 	m_lokhust_destroyer = model('Lokust Destroyer',t=6,w=3,sv=3,guns=[],special=[])
-	u_lokhust_destroyers = unit('Lokhust Destroyers',[m_lokhust_destroyer]*3,tag='mounted',cost=90)
+	u_lokhust_destroyers = unit('3 Lokhust Destroyers',[m_lokhust_destroyer]*3,tag='mounted',cost=90)
 
 	m_war_walker_starcannons = model('War Walker with starcannons',t=7,w=6,sv=3,guns=[starcannon]*2,invuln=5,special=[])
 	u_war_walker_starcannons = unit('War Walker with starcannons',[m_war_walker_starcannons],tag='vehicle',cost=95)
@@ -439,7 +439,7 @@ def plot_dmg_per_pt(attacker_list,target_list):
 		for j, attacker in enumerate(attacker_list):
 			average_wounds = unit_attack(attacker,enemy)
 			results[j,i] = average_wounds / (attacker.cost) *pt_scale  
-			print('{:.3f} wounds divided by {} pts = {:.3f} wounds per 100 pts'.format(average_wounds,attacker.cost,results[j,i]))
+			print('{:.3f} wounds divided by {} pts = {:.3f} wounds per {} pts'.format(average_wounds,attacker.cost,results[j,i],pt_scale))
 		print('----------------------------')
 	r = np.arange(len(target_list))
 	width = 0.1	
@@ -449,8 +449,8 @@ def plot_dmg_per_pt(attacker_list,target_list):
 				 width = width, edgecolor = 'black',
 				label=attacker.name,zorder=3)
 	plt.xlabel("Target")
-	plt.ylabel("Average wounds per 100 pts")
-	plt.title("Wounds per point")
+	plt.ylabel("Average wounds per {} pts".format(pt_scale))
+	plt.title("Wounds per {} points".format(pt_scale))
 	plt.xticks(r + len(attacker_list)*width/2, [k.name for k in target_list])
 	plt.legend(loc='best')
 	plt.grid(zorder=0)

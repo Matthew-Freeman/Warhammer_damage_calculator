@@ -28,7 +28,9 @@ def main():
 	singing_spear = weapon('Singing Spear',1,3,9,0,3,'ranged')
 	prism_cannon_dispersed = weapon('Prism Cannon dispersed','2D6',3,6,-2,2,'ranged',special={'rr_h1':True}) #haven't coded 1 reroll, so rerolling 1s instead.
 	prism_cannon_focused = weapon('Prism Cannon focused',2,3,18,-4,6,'ranged',special={'rr_h1':True})
-
+	shuriken_catapult = weapon('Shuriken catapult',2, 3, 4, -1, 1,'ranged',special={})
+	twin_shuriken_catapult = weapon('Twin Shuriken catapult',2, 3, 4, -1, 1,'ranged',special={'twin_linked':True})
+	ranger_long_rifle = weapon('Ranger Long Rifle',1, 3, 4, -1, 2,'ranged',special={'heavy':True})
 
 	m_marine = model('Marine',t=4,w=2,sv=3,guns=[],special=[])
 	u_marines = unit('5 Marines',[m_marine]*5,tag='infantry')
@@ -61,15 +63,29 @@ def main():
 	m_war_walker_starcannons = model('War Walker with starcannons',t=7,w=6,sv=3,guns=[starcannon]*2,invuln=5,special=[])
 	u_war_walker_starcannons = unit('War Walker with starcannons',[m_war_walker_starcannons],tag='vehicle',cost=95)
 
+	m_vyper_shuriken_cannon = model('Vyper with shuriken cannon',t=6,w=6,sv=3,guns=[shuriken_cannon,twin_shuriken_catapult],special=[])
+	u_vyper_shuriken_cannon = unit('Vyper with shuriken cannon',[m_vyper_shuriken_cannon],tag='vehicle',cost=65)
+
 	m_dark_reaper = model('Dark Reaper',t=3,w=1,sv=3,guns=[reaper_launcher_starshot],invuln=5,special=[])
 	m_dark_reaper_exarch = model('Dark Reaper Exarch',t=3,w=2,sv=3,guns=[reaper_launcher_starshot],invuln=5,special=[])
 	u_dark_reapers = unit('5 Dark Reapers',[m_dark_reaper]*4 + [m_dark_reaper_exarch],tag='infantry',cost=90)
 
+	m_ranger = model('Ranger',t=3,w=1,sv=5,guns=[ranger_long_rifle],invuln=5,special=['stealth'])
+	u_rangers = unit('5 Rangers',[m_ranger]*5,tag='infantry',cost=55)
+
 	eldar_heavy_weapons = [scatter_laser,shuriken_cannon,starcannon,bright_lance,missile_launcher_starshot,missile_launcher_sunburst]
+
+
+	#manual vyper vs marines
+	print("manual vyper v marines",3 * 3/6 * 4/6 * 3/6 * 2, 3 * 1/6 * 6/6 * 3/6 * 2, 2 * 4/6 * 3/4 * 3/6 * 1)
+
+
 
 	plot_dmg_per_pt([u_dark_reapers,u_war_walker_starcannons,u_fire_prism_dispersed,u_fire_prism_focused],[u_marines,u_terminators,u_falcon])
 
 	plot_wpn_dmg(eldar_heavy_weapons,[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers])
+
+	plot_dmg([u_rangers,u_vyper_shuriken_cannon],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers])
 
 	plt.show()
 
@@ -168,7 +184,10 @@ def weapon_attack(weapon,target_unit,special_rules,a_type):
 			ap = min(weapon.ap+1,0)
 	if '-1h' in target_model.special:
 			hit_mod = hit_mod -1
-
+	if 'stealth' in target_model.special:
+			hit_mod = hit_mod -1
+	if 'heavy' in weapon.special:
+			hit_mod = hit_mod +1
 	if 'indirect' in special_rules:
 		hit_mod = hit_mod-1
 		indirect=True
@@ -179,10 +198,9 @@ def weapon_attack(weapon,target_unit,special_rules,a_type):
 	if 'ignore_hit_mod' in weapon.special:
 		hit_mod=0
 	if 'no invuln' in weapon.special:
-			inv = None
+		inv = None
 
 	n_attacks = avg_attacks(a,weapon,target_unit.size)
-
 
 
 	if 'torrent' in weapon.special or 'autohit' in special_rules:
@@ -207,13 +225,20 @@ def weapon_attack(weapon,target_unit,special_rules,a_type):
 	if '+1w' in special_rules:
 		wound_modifier = 1
 
+	rr_wounds = False
+	if 'twin_linked' in weapon.special:
+		print('weapon is twin linked')
+		rr_wounds = True
+	
+		
+
 	autowound=False
 	if 'autowound_m_nmv' in special_rules and a_type=='melee' and not(target_unit.tag=='vehicle' or target_unit.tag=='monster'):
 		print('autowounding with',weapon.name)
 		autowound = True
 		p_wound = 1
 	else:
-		p_wound = wound(weapon.s,target_model.t,wound_modifier)
+		p_wound = wound(weapon.s,target_model.t,wound_modifier,rr_wounds=rr_wounds)
 	
 
 	p_fail_save = fail_save(sv,inv,ap)
@@ -333,7 +358,9 @@ def wound(s,t,wound_mod=0,rr_wounds=False,rr_1s=False):
 		p = 1
 	p = p/6
 	if rr_wounds:
+		print('rr_wounds:', p)
 		p = 1-(1-p)**2
+		print('goes to:', p)
 	elif rr_1s:
 		p = p + 1/6*p
 	return p
@@ -392,7 +419,7 @@ def avg_damage(weapon,target_model,mortal=False):
 
 	efficiency = 1.0
 	if scale_for_overkill:
-		if len(roll_results) == 1 or damage[0] >= w:
+		if len(roll_results) == 1 or damage[0] >= w: #if fixed damage, or random always enought to one shot, then scale
 			shots_to_kill = np.ceil(w/damage[0])
 			efficiency = w/(damage[0]*shots_to_kill)
 			average_damage = average_damage*efficiency

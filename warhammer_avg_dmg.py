@@ -3,83 +3,21 @@ import numpy as np
 import matplotlib.pyplot as plt 
 import math
 
+from weapons import *
+from units import *
 
 pt_scale = 100   #plot avg wounds per this many points
 
-scale_for_overkill = True # When shooting 3-wound models with 2-damage weapons, 25% of the damage is wasted as overkill.
+scale_for_wounded_models = True 
+# i.e. When shooting 3-wound models with 2-damage weapons, 25% of the damage is wasted as overkill on wounded models.
+# If true, damage will be scaled down by the efficiency percentage. Not implemented for random damage weapons.
 
 def main():
-
 	#ranged_weapon(name, attacks, ballistic skill, strength, armour penetration, damage, ranged/melee, special rules)
-
-	starcannon = weapon('Starcannon',2, 3, 8, -3, 2,'ranged')
-	shuriken_cannon = weapon('Shuriken cannon',3, 3, 6, -1, 2,'ranged',special={'lethal_hits':True})
-	scatter_laser = weapon('Scatter laser',6, 3, 5, 0, 1,'ranged',special={'sustained_hits':1})
-	missile_launcher_starshot = weapon('Missile launcher - starshot',1, 3, 10,-2,'D6','ranged')
-	missile_launcher_sunburst = weapon('Missile launcher - sunburst','D6', 3, 4, -1,1,'ranged',special={'blast':True})
-	bright_lance = weapon('Bright Lance',1, 3, 12, -3, 'D6+2','ranged')
-
-	death_spinner = weapon('Death spinner','D6','N/A',4,-1,1,'ranged',special={'torrent':True,'ignores_cover':True})
-	fusion_gun = weapon('Dragon fusion gun',1, 3,9,-4,'D6','ranged',special={'melta':3})
-	reaper_launcher_starshot = weapon('Reaper launcher - starshot',1, 3, 10, -2, 3,'ranged',special={'ignores_cover':True,'ignore_hit_mod':True})
-	reaper_launcher_starswarm = weapon('Reaper launcher - starswarm',2, 3, 5, -2, 1,'ranged',special={'ignores_cover':True,'ignore_hit_mod':True})
-	avenger_catapult = weapon('Avenger catapult',4, 3, 4, -1, 1,'ranged',special={'sustained_hits':1})
-	destructor = weapon('Destructor','D6+2', 'N/A', 7, -1, 1,'ranged',special={'torrent':True})
-	singing_spear = weapon('Singing Spear',1,3,9,0,3,'ranged')
-	prism_cannon_dispersed = weapon('Prism Cannon dispersed','2D6',3,6,-2,2,'ranged',special={'rr_h1':True}) #haven't coded 1 reroll, so rerolling 1s instead.
-	prism_cannon_focused = weapon('Prism Cannon focused',2,3,18,-4,6,'ranged',special={'rr_h1':True})
-	shuriken_catapult = weapon('Shuriken catapult',2, 3, 4, -1, 1,'ranged',special={})
-	twin_shuriken_catapult = weapon('Twin Shuriken catapult',2, 3, 4, -1, 1,'ranged',special={'twin_linked':True})
-	ranger_long_rifle = weapon('Ranger Long Rifle',1, 3, 4, -1, 2,'ranged',special={'heavy':True})
-
-	m_marine = model('Marine',t=4,w=2,sv=3,guns=[],special=[])
-	u_marines = unit('5 Marines',[m_marine]*5,tag='infantry')
-
-	m_terminator = model('Terminator',t=5,w=3,sv=2,guns=[],invuln=4,special=[])
-	u_terminators = unit('5 Terminators',[m_terminator]*5,tag='infantry')
-
-	m_guardsman = model('10 Guardsmen',t=3,w=1,sv=5,guns=[],special=[])
-	u_guardsmen = unit('10 Guardsmen',[m_guardsman]*10,tag='infantry')
-
-	m_dire_avenger = model('Dire Avenger',t=3,w=1,sv=4,guns=[avenger_catapult],invuln=5,special=[])
-	m_dire_avenger_exarch = model('Dire Avenger Exarch',t=3,w=2,sv=4,guns=[avenger_catapult,avenger_catapult],invuln=5,special=[])
-	u_dire_avengers = unit('5 Dire Avengers',[m_dire_avenger]*4 + [m_dire_avenger_exarch],tag='infantry',cost=75)
-
-	m_warlock = model('Warlock',t=3,w=1,sv=6,guns=[destructor,singing_spear],invuln=4,special=[])
-	u_warlocks = unit('2 Warlocks', [m_warlock]*2,tag='infantry',cost=55)
-
-	m_falcon = model('Falcon',t=9,w=12,sv=3,guns=[],special=[])
-	u_falcon = unit('Falcon',[m_falcon],tag='vehicle',cost=130)
-
-	m_fire_prism_dispersed = model('Fire Prism dispersed',t=9,w=12,sv=3,guns=[prism_cannon_dispersed],special=[])
-	u_fire_prism_dispersed = unit('Fire Prism dispersed',[m_fire_prism_dispersed],tag='vehicle',cost=160)
-
-	m_fire_prism_focused = model('Fire Prism focused',t=9,w=12,sv=3,guns=[prism_cannon_focused],special=[])
-	u_fire_prism_focused = unit('Fire Prism focused',[m_fire_prism_focused],tag='vehicle',cost=160)
-
-	m_lokhust_destroyer = model('Lokust Destroyer',t=6,w=3,sv=3,guns=[],special=[])
-	u_lokhust_destroyers = unit('3 Lokhust Destroyers',[m_lokhust_destroyer]*3,tag='mounted',cost=90)
-
-	m_war_walker_starcannons = model('War Walker with starcannons',t=7,w=6,sv=3,guns=[starcannon]*2,invuln=5,special=[])
-	u_war_walker_starcannons = unit('War Walker with starcannons',[m_war_walker_starcannons],tag='vehicle',cost=95)
-
-	m_vyper_shuriken_cannon = model('Vyper with shuriken cannon',t=6,w=6,sv=3,guns=[shuriken_cannon,twin_shuriken_catapult],special=[])
-	u_vyper_shuriken_cannon = unit('Vyper with shuriken cannon',[m_vyper_shuriken_cannon],tag='vehicle',cost=65)
-
-	m_dark_reaper = model('Dark Reaper',t=3,w=1,sv=3,guns=[reaper_launcher_starshot],invuln=5,special=[])
-	m_dark_reaper_exarch = model('Dark Reaper Exarch',t=3,w=2,sv=3,guns=[reaper_launcher_starshot],invuln=5,special=[])
-	u_dark_reapers = unit('5 Dark Reapers',[m_dark_reaper]*4 + [m_dark_reaper_exarch],tag='infantry',cost=90)
-
-	m_ranger = model('Ranger',t=3,w=1,sv=5,guns=[ranger_long_rifle],invuln=5,special=['stealth'])
-	u_rangers = unit('5 Rangers',[m_ranger]*5,tag='infantry',cost=55)
-
 	eldar_heavy_weapons = [scatter_laser,shuriken_cannon,starcannon,bright_lance,missile_launcher_starshot,missile_launcher_sunburst]
 
-
 	#manual vyper vs marines
-	print("manual vyper v marines",3 * 3/6 * 4/6 * 3/6 * 2, 3 * 1/6 * 6/6 * 3/6 * 2, 2 * 4/6 * 3/4 * 3/6 * 1)
-
-
+	# print("manual vyper v marines",3 * 3/6 * 4/6 * 3/6 * 2, 3 * 1/6 * 6/6 * 3/6 * 2, 2 * 4/6 * 3/4 * 3/6 * 1)
 
 	plot_dmg_per_pt([u_dark_reapers,u_war_walker_starcannons,u_fire_prism_dispersed,u_fire_prism_focused],[u_marines,u_terminators,u_falcon])
 
@@ -87,84 +25,49 @@ def main():
 
 	plot_unit_dmg([u_rangers,u_vyper_shuriken_cannon],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers])
 
+	# for item in Weapon.list:
+	# 	print(item.name)
+
 	plt.show()
 
-def dmg_per_pt(attacker,target):
-		dmg_per = unit_attack(attacker,target) / (attacker.cost) *100
-		print('{} vs {} = {:.4f} damage per 100 points'.format(attacker.name,target.name,dmg_per))	
-
-
-class  weapon():
-	def __init__(self, name,attacks,skill,strength,ap,damage,type,special=[]):
-		self.name = name
-		self.attacks = attacks
-		self.skill = skill
-		self.s = strength
-		self.ap = ap
-		self.damage = damage
-		self.type = type #ranged or melee
-		self.special = special
-
-class unit():
-	def __init__(self, name,members,tag=None,special_rules=[],cost=None):
-		self.name = name
-		self.members = members
-		self.size = len(members)
-		self.special_rules = special_rules
-		self.tag = tag
-		if cost is not None:
-			self.cost = cost
-		elif members[0].cost is not None:
-			self.cost = sum(m.cost for m in members)
-		else:
-			self.cost = None
-
-class model():
-	def __init__(self,name,t,w,sv,guns=[],swords=[],invuln=None,special=[],cost=None):
-		self.name = name
-		self.t = t
-		self.sv = sv
-		self.w = w
-		self.invuln=invuln
-		self.special = special
-		self.guns = guns
-		self.swords = swords
-		self.cost = cost
+# def dmg_per_pt(attacker,target):
+# 		dmg_per = unit_attack(attacker,target) / (attacker.cost) *100
+# 		print('{} vs {} = {:.4f} damage per 100 points'.format(attacker.name,target.name,dmg_per))	
 
 
 def unit_attack(attacking_unit,target_unit):
 	total_damage = 0
 	squad_efficiency = []
+	print("{0} vs {1} ".format(attacking_unit.name,target_unit.name))
 	for attacking_model in attacking_unit.members:
 		temp_damage, efficiency = model_attack(attacking_model,target_unit,attacking_unit.special_rules)
 		total_damage += temp_damage
 		squad_efficiency.append(efficiency)
-	print('{0:36} = {1:.3f} total wounds on average. {2:.0f}% efficiency'.format(attacking_unit.name+' vs '+target_unit.name,total_damage,efficiency*100))
+	print('= {0:.3f} total wounds on average. Min {1:.0f}% efficiency'.format(total_damage,efficiency*100))
 	# print('Squad efficiency = {}'.format(squad_efficiency))
 	return total_damage
 
-# def sim(weapon,unit):
-# 	avg = attack(weapon,unit)
-# 	# print(weapon.name + ' vs ' + unit.name + ':', avg, 'wounds on average')
-# 	print('{0:36}  {1:.3f} wounds on average'.format(weapon.name + ' vs ' + unit.name + ':', avg))
-# 	return avg
-
-def model_attack(attacking_model,target_unit,special_rules,):
+def model_attack(attacking_model,target_unit,special_rules,phase='shooting'):
 	total_average_wounds = 0
+	efficiencies = []
 
 	special_rules = attacking_model.special + special_rules
 
-	for n, weapon in enumerate(attacking_model.guns):
-		avg_wounds, efficiency = weapon_attack(weapon,target_unit,special_rules,a_type='ranged')
-		print('{} wounds with {}'.format(avg_wounds,weapon.name))
-		total_average_wounds += avg_wounds
-
-	for n, weapon in enumerate(attacking_model.swords):
-		avg_wounds, efficiency = weapon_attack(weapon,target_unit,special_rules,a_type='melee')
-		print('{} wounds with {}'.format(avg_wounds,weapon.name))
-		total_average_wounds += avg_wounds
+	if phase == 'shooting' or phase == 'both':
+		for n, weapon in enumerate(attacking_model.guns):
+			avg_wounds, efficiency = weapon_attack(weapon,target_unit,special_rules,a_type='ranged')
+			print('{:.4f} wounds with {}'.format(avg_wounds,weapon.name))
+			total_average_wounds += avg_wounds
+			efficiencies.append(efficiency)
 	
-	return total_average_wounds, efficiency
+	if phase == 'fight' or phase == 'both':
+		for n, weapon in enumerate(attacking_model.swords):
+			avg_wounds, efficiency = weapon_attack(weapon,target_unit,special_rules,a_type='melee')
+			print('{:.4f} wounds with {}'.format(avg_wounds,weapon.name))
+			total_average_wounds += avg_wounds
+			efficiencies.append(efficiency)
+
+	return total_average_wounds, min(efficiencies)	
 
 def weapon_attack(weapon,target_unit,special_rules,a_type):
 	target_model = target_unit.members[0]
@@ -227,7 +130,7 @@ def weapon_attack(weapon,target_unit,special_rules,a_type):
 
 	rr_wounds = False
 	if 'twin_linked' in weapon.special:
-		print('weapon is twin linked')
+		# print('weapon is twin linked')
 		rr_wounds = True
 	
 		
@@ -253,15 +156,6 @@ def weapon_attack(weapon,target_unit,special_rules,a_type):
 	if 'rrw1_v' in special_rules and (target_unit.tag=='vehicle' or target_unit.tag=='monster'):
 		# print('rerolling 1\'s to wound')
 		rrw1=True
-
-
-	# # if weapon.special == 'shuriken':
-	# if 'devastating_wounds' in weapon.special:
-	# 	avg_wounds = roll_devastating_attack(n_attacks,p_hit,p_wound,p_fail_save,average_damage,rrw1)
-	# elif 'lethal_hits' in weapon.special:
-	# 	avg_wounds = roll_lethal_attack(n_attacks,p_hit,p_wound,p_fail_save,average_damage,rrw1)
-	# else:
-	# 	avg_wounds = roll_regular_attack(n_attacks,p_hit,p_wound,p_fail_save,average_damage,rrw1)
 
 	p_crit_hit = 1/6
 	p_crit_wound = 1/6
@@ -358,9 +252,9 @@ def wound(s,t,wound_mod=0,rr_wounds=False,rr_1s=False):
 		p = 1
 	p = p/6
 	if rr_wounds:
-		print('rr_wounds:', p)
+		# print('rr_wounds:', p)
 		p = 1-(1-p)**2
-		print('goes to:', p)
+		# print('goes to:', p)
 	elif rr_1s:
 		p = p + 1/6*p
 	return p
@@ -418,8 +312,8 @@ def avg_damage(weapon,target_model,mortal=False):
 	average_damage = sum(damage)/len(damage)
 
 	efficiency = 1.0
-	if scale_for_overkill:
-		if len(roll_results) == 1 or damage[0] >= w: #if fixed damage, or random always enought to one shot, then scale
+	if scale_for_wounded_models:
+		if len(roll_results) == 1: #if fixed damage, then scale
 			shots_to_kill = np.ceil(w/damage[0])
 			efficiency = w/(damage[0]*shots_to_kill)
 			average_damage = average_damage*efficiency
@@ -438,36 +332,14 @@ def roll_recursion(n_dice,D_size,roll_results=[],sum=0): #rolls all possible com
 			roll_recursion(n_dice-1,D_size,roll_results,sum=i+sum)
 	return roll_results
 
-# def plot_sims(weapon_list,target_list):
-# 	results = np.zeros((len(weapon_list),len(target_list)))
-# 	for i, enemy in enumerate(target_list):
-# 		for j, gun in enumerate(weapon_list):
-# 			results[j,i] = sim(gun,enemy)  
-# 		print('----------------------------')
-# 	r = np.arange(len(target_list))
-# 	width = 0.1	
-# 	plt.figure(figsize=(12,6))
-# 	for i, gun in enumerate(weapon_list):  
-# 		plt.bar(r + width*i, results[i,:],
-# 				 width = width, edgecolor = 'black',
-# 				label=gun.name,zorder=3)
-# 	plt.xlabel("Target")
-# 	plt.ylabel("Average wounds inflicted")
-# 	plt.title("Weapon Averages")
-# 	plt.xticks(r + len(weapon_list)*width/2, [k.name for k in target_list])
-# 	plt.legend(loc='best')
-# 	plt.grid(zorder=0)
-# 	# plt.show()
-# 	print('done')
-
 def plot_dmg_per_pt(attacker_list,target_list):
 	results = np.zeros((len(attacker_list),len(target_list)))
 	for i, enemy in enumerate(target_list):
 		for j, attacker in enumerate(attacker_list):
 			average_wounds = unit_attack(attacker,enemy)
 			results[j,i] = average_wounds / (attacker.cost) *pt_scale  
-			print('{:.3f} wounds divided by {} pts = {:.3f} wounds per {} pts'.format(average_wounds,attacker.cost,results[j,i],pt_scale))
-		print('----------------------------')
+			print('{:.3f} wounds divided by {} pts = {:.3f} wounds per {} pts\n'.format(average_wounds,attacker.cost,results[j,i],pt_scale))
+	print('----------------------------\n')
 	r = np.arange(len(target_list))
 	width = 0.1	
 	plt.figure(figsize=(12,6))
@@ -482,14 +354,15 @@ def plot_dmg_per_pt(attacker_list,target_list):
 	plt.legend(loc='best')
 	plt.grid(zorder=0)
 	# plt.show()
-	print('done')
+	# print('done')
 
 def plot_unit_dmg(attacker_list,target_list):
 	results = np.zeros((len(attacker_list),len(target_list)))
 	for i, enemy in enumerate(target_list):
 		for j, attacker in enumerate(attacker_list):
-			results[j,i] = unit_attack(attacker,enemy)  
-		print('----------------------------')
+			results[j,i] = unit_attack(attacker,enemy) 
+			print('') 
+	print('----------------------------\n')
 	r = np.arange(len(target_list))
 	width = 0.1	
 	plt.figure(figsize=(12,6))
@@ -504,15 +377,16 @@ def plot_unit_dmg(attacker_list,target_list):
 	plt.legend(loc='best')
 	plt.grid(zorder=0)
 	# plt.show()
-	print('done')
+	# print('done')
 
 def plot_wpn_dmg(weapon_list,target_list):
 	results = np.zeros((len(weapon_list),len(target_list)))
 	for i, enemy in enumerate(target_list):
 		for j, weapon in enumerate(weapon_list):
-			results[j,i], null = weapon_attack(weapon,enemy,[],weapon.type)
-			print('{} vs {}, {:.3f} wounds'.format(weapon.name,enemy.name,results[j,i]))
-		print('----------------------------')
+			results[j,i], efficiency = weapon_attack(weapon,enemy,[],weapon.type)
+			print('{} vs {}, {:.3f} wounds. {:.0f}% efficiency'.format(weapon.name,enemy.name,results[j,i],efficiency*100))
+		print('')
+	print('----------------------------\n')
 	r = np.arange(len(target_list))
 	width = 0.1	
 	plt.figure(figsize=(12,6))
@@ -527,6 +401,8 @@ def plot_wpn_dmg(weapon_list,target_list):
 	plt.legend(loc='best')
 	plt.grid(zorder=0)
 	# plt.show()
-	print('done')	
+	# print('done')	
 
-main()
+
+if __name__ == "__main__":
+    main()

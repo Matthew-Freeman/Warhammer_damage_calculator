@@ -85,7 +85,7 @@ def main():
 
 	plot_wpn_dmg(eldar_heavy_weapons,[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers])
 
-	plot_dmg([u_rangers,u_vyper_shuriken_cannon],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers])
+	plot_unit_dmg([u_rangers,u_vyper_shuriken_cannon],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers])
 
 	plt.show()
 
@@ -484,7 +484,7 @@ def plot_dmg_per_pt(attacker_list,target_list):
 	# plt.show()
 	print('done')
 
-def plot_dmg(attacker_list,target_list):
+def plot_unit_dmg(attacker_list,target_list):
 	results = np.zeros((len(attacker_list),len(target_list)))
 	for i, enemy in enumerate(target_list):
 		for j, attacker in enumerate(attacker_list):

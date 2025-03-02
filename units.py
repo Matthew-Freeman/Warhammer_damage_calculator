@@ -87,6 +87,11 @@ u_fire_prism_dispersed = Unit('Fire Prism dispersed',[m_fire_prism_dispersed],ta
 m_fire_prism_focused = Model('Fire Prism focused',t=9,w=12,sv=3,guns=[prism_cannon_focused],special={})
 u_fire_prism_focused = Unit('Fire Prism focused',[m_fire_prism_focused],tag='vehicle',cost=160)
 
+m_falcon_scatter = Model('Falcon',t=9,w=12,sv=3,guns=[pulse_laser,scatter_laser,shuriken_cannon],special={})
+m_falcon_lance = Model('Falcon',t=9,w=12,sv=3,guns=[pulse_laser,bright_lance,shuriken_cannon],special={})
+u_falcon_scatter = Unit('Falcon (scatter laser)',[m_falcon_scatter],tag='vehicle',cost=130)
+u_falcon_lance = Unit('Falcon (bright lance)',[m_falcon_lance],tag='vehicle',cost=130)
+
 m_lokhust_destroyer = Model('Lokust Destroyer',t=6,w=3,sv=3,guns=[],special={})
 u_lokhust_destroyers = Unit('3 Lokhust Destroyers',[m_lokhust_destroyer]*3,tag='mounted',cost=90)
 

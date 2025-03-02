@@ -46,7 +46,10 @@ def main():
 	# plot_unit_dmg_per_pt([u_dire_avengers, u_warp_spiders_2, u_fire_dragons,u_dark_reapers],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 	# plot_unit_dmg_per_pt([u_warlock_conclave],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 
-	plot_unit_dmg_per_pt([u_dire_avengers, u_warp_spiders_2, u_fire_dragons,u_dark_reapers_1,u_dark_reapers_2,u_warlock_conclave],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
+	# plot_unit_dmg_per_pt([u_dire_avengers, u_warp_spiders_2, u_fire_dragons,u_dark_reapers_1,u_dark_reapers_2,u_warlock_conclave],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
+
+	plot_unit_dmg_per_pt([u_falcon_scatter,u_falcon_lance,u_fire_prism_focused,u_fire_prism_dispersed],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
+
 
 	# for item in Weapon.list:
 	# 	print(item.name)

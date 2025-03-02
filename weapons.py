@@ -30,14 +30,17 @@ dragon_fusion_gun = Weapon('Dragon fusion gun',1, 3,9,-4,'D6','ranged',special={
 firepike = Weapon('Firepike',1, 3,12,-4,'D6','ranged',special={'melta':3})
 reaper_launcher_starshot = Weapon('Reaper launcher - starshot',1, 3, 10, -2, 3,'ranged',special={'ignores_cover':True,'ignores_hit_mod':True})
 reaper_launcher_starswarm = Weapon('Reaper launcher - starswarm',2, 3, 5, -2, 1,'ranged',special={'ignores_cover':True,'ignores_hit_mod':True})
+reaper_missile_launcher_sunburst = Weapon('Missile launcher - sunburst','D6', 2, 4, -1,1,'ranged',special={'blast':True,'ignores_cover':True,'ignores_hit_mod':True})
 reaper_missile_launcher_starshot = Weapon('Missile launcher - starshot',1, 2, 10,-2,'D6','ranged',special={'ignores_cover':True,'ignores_hit_mod':True})
 avenger_catapult = Weapon('Avenger catapult',4, 3, 4, -1, 1,'ranged',special={'sustained_hits':1})
 
 
 destructor_1 = Weapon('Destructor','D6', 'N/A', 5, -1, 1,'ranged',special={'torrent':True})
-destructor_2 = Weapon('Destructor +1','D6+1', 'N/A', 6, -1, 1,'ranged',special={'torrent':True})
-destructor_3 = Weapon('Destructor +2','D6+2', 'N/A', 7, -1, 1,'ranged',special={'torrent':True})
-singing_spear = Weapon('Singing Spear',1,3,9,0,3,'ranged')
+destructor_2 = Weapon('Destructor (+1)','D6+1', 'N/A', 6, -1, 1,'ranged',special={'torrent':True})
+destructor_3 = Weapon('Destructor (+2)','D6+2', 'N/A', 7, -1, 1,'ranged',special={'torrent':True})
+singing_spear_w = Weapon('Singing Spear (W)',1,3,9,0,3,'ranged')
+singing_spear_f = Weapon('Singing Spear (F)',1,2,9,0,3,'ranged')
+eldritch_storm = Weapon('Eldritch Storm','D6',3,6,-2,'D3','ranged',special={'blast':True})
 
 prism_cannon_dispersed = Weapon('Prism Cannon dispersed','2D6',3,6,-2,2,'ranged',special={'rr_h1':True}) #haven't coded 1 reroll, so rerolling 1s instead.
 prism_cannon_focused = Weapon('Prism Cannon focused',2,3,18,-4,6,'ranged',special={'rr_h1':True})

@@ -24,6 +24,8 @@ def main():
 	# print("manual spider v marines",3.5 * 1 * 3/6 * 3/6 * 1,3.5*1*3/4*3/6*1)
 	# print("manual avenger v marines",4 * 5/6 * 3/6 * 3/6 * 1)
 	# print("manual reaper v marines",1 * 4/6 * 5/6 * 4/6 * 2)
+	print("manual warlock v marines",5.5 * 1 * 4/6 * 3/6 * 1, 1 * 8/9 * 5/6*2/6*2)
+	print("manual farseer v marines",4.5*8/9*4/6*4/6*5/3)
 
 	# plot_unit_dmg_per_pt([u_dark_reapers,u_war_walker_starcannons,u_fire_prism_dispersed,u_fire_prism_focused],[u_marines,u_terminators,u_falcon])
 
@@ -35,15 +37,16 @@ def main():
 
 	# plot_unit_dmg_per_pt([u_dire_avengers, u_warp_spiders, u_fire_dragons],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'both')
 
-	# plot_unit_dmg([u_dire_avengers, u_warp_spiders_2, u_fire_dragons,u_dark_reapers],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
-	# plot_unit_dmg_per_pt([u_dire_avengers, u_warp_spiders_2, u_fire_dragons,u_dark_reapers],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
-
-	plot_unit_dmg([u_dire_avengers, u_warp_spiders_2, u_fire_dragons,u_dark_reapers],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 
 	# plot_unit_dmg([u_warp_spiders_1,u_warp_spiders_2,u_warp_spiders_3],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'both')
 
 	# plot_unit_dmg_per_pt([u_striking_scorpions,u_howling_banshees],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'fight')
 
+	# plot_unit_dmg([u_dire_avengers, u_warp_spiders_2, u_fire_dragons,u_dark_reapers],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
+	# plot_unit_dmg_per_pt([u_dire_avengers, u_warp_spiders_2, u_fire_dragons,u_dark_reapers],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
+	# plot_unit_dmg_per_pt([u_warlock_conclave],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
+
+	plot_unit_dmg_per_pt([u_dire_avengers, u_warp_spiders_2, u_fire_dragons,u_dark_reapers_1,u_dark_reapers_2,u_warlock_conclave],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 
 	# for item in Weapon.list:
 	# 	print(item.name)
@@ -120,7 +123,6 @@ def weapon_attack(weapon,target_unit,special_rules,a_type):
 		# sv = target_model.sv-1 
 		cover=True
 	if 'cover' in target_unit.special:
-		print('unit in cover')
 		cover = True
 
 	if 'ignores_hit_mod' in weapon.special or 'ignores_hit_mod' in special_rules:
@@ -158,7 +160,9 @@ def weapon_attack(weapon,target_unit,special_rules,a_type):
 
 	wound_modifier=0
 	if '+1w' in special_rules:
-		wound_modifier = 1
+		wound_modifier += 1
+	if '-1w' in target_model.special:
+		wound_modifier -= 1
 
 	rr_wounds = False
 	if 'twin_linked' in weapon.special:
@@ -421,7 +425,7 @@ def plot_unit_dmg_per_pt(attacker_list,target_list,phase):
 				label=attacker.name,zorder=3)
 	plt.xlabel("Target")
 	plt.ylabel("Average wounds per {} pts".format(pt_scale))
-	plt.title("Wounds per {} points. Phase={}".format(pt_scale,phase))
+	plt.title("Wounds per {} points. Phase = {}".format(pt_scale,phase))
 	plt.xticks(r + len(attacker_list)*width/2, [k.name for k in target_list])
 	plt.legend(loc='best')
 	plt.grid(zorder=0)
@@ -444,7 +448,7 @@ def plot_unit_dmg(attacker_list,target_list,phase):
 				label=attacker.name,zorder=3)
 	plt.xlabel("Target")
 	plt.ylabel("Average wounds")
-	plt.title("Wounds. Phase={}".format(phase))
+	plt.title("Wounds. Phase = {}".format(phase))
 	plt.xticks(r + len(attacker_list)*width/2, [k.name for k in target_list])
 	plt.legend(loc='best')
 	plt.grid(zorder=0)

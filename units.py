@@ -58,9 +58,13 @@ m_striking_scorpion = Model('Striking Scorpion',t=3,w=1,sv=3,guns=[shuriken_pist
 m_striking_scorpion_exarch = Model('Striking Scorpion Exarch',t=3,w=2,sv=3,guns=[shuriken_pistol],swords=[biting_blade],invuln=5,special={'critical_hits':5,'stealth':True})
 u_striking_scorpions = Unit('5 Striking Scorpions',[m_striking_scorpion]*4 + [m_striking_scorpion_exarch],tag='infantry',cost=75)
 
-m_dark_reaper = Model('Dark Reaper',t=3,w=1,sv=3,guns=[reaper_launcher_starshot],swords=[aspect_close_combat_weapon],invuln=5,special={})
-m_dark_reaper_exarch = Model('Dark Reaper Exarch',t=3,w=2,sv=3,guns=[reaper_missile_launcher_starshot],swords=[aspect_close_combat_weapon],invuln=5,special={})
-u_dark_reapers = Unit('5 Dark Reapers (starshot)',[m_dark_reaper]*4 + [m_dark_reaper_exarch],tag='infantry',cost=90)
+m_dark_reaper_1 = Model('Dark Reaper',t=3,w=1,sv=3,guns=[reaper_launcher_starshot],swords=[aspect_close_combat_weapon],invuln=5,special={})
+m_dark_reaper_exarch_1 = Model('Dark Reaper Exarch',t=3,w=2,sv=3,guns=[reaper_missile_launcher_starshot],swords=[aspect_close_combat_weapon],invuln=5,special={})
+u_dark_reapers_1 = Unit('5 Dark Reapers (starshot)',[m_dark_reaper_1]*4 + [m_dark_reaper_exarch_1],tag='infantry',cost=90)
+
+m_dark_reaper_2 = Model('Dark Reaper',t=3,w=1,sv=3,guns=[reaper_launcher_starswarm],swords=[aspect_close_combat_weapon],invuln=5,special={})
+m_dark_reaper_exarch_2 = Model('Dark Reaper Exarch',t=3,w=2,sv=3,guns=[reaper_missile_launcher_sunburst],swords=[aspect_close_combat_weapon],invuln=5,special={})
+u_dark_reapers_2 = Unit('5 Dark Reapers (starswarm)',[m_dark_reaper_2]*4 + [m_dark_reaper_exarch_2],tag='infantry',cost=90)
 
 m_warp_spider = Model('Warp Spider',t=3,w=1,sv=3,guns=[death_spinner],swords=[aspect_close_combat_weapon],invuln=5,special={})
 m_warp_spider_exarch_1 = Model('Warp Spider Exarch',t=3,w=2,sv=3,guns=[death_weavers,spinneret_rifle],swords=[aspect_close_combat_weapon],invuln=5,special={})
@@ -70,8 +74,9 @@ u_warp_spiders_1 = Unit("5 Warp Spiders (spinneret rifle)",[m_warp_spider]*4 + [
 u_warp_spiders_2 = Unit("5 Warp Spiders (powerblades)",[m_warp_spider]*4 + [m_warp_spider_exarch_2],tag='infrantry',cost=95)
 u_warp_spiders_3 = Unit("5 Warp Spiders (powerblade array)",[m_warp_spider]*4 + [m_warp_spider_exarch_3],tag='infrantry',cost=95)
 
-m_warlock = Model('Warlock',t=3,w=1,sv=6,guns=[destructor_3,singing_spear],invuln=4,special={})
-u_warlock_conclave = Unit('2 Warlocks', [m_warlock]*2,tag='infantry',cost=55)
+m_farseer = Model('Farseer',t=3,w=4,sv=6,guns=[eldritch_storm,singing_spear_f],invuln=4,special={'-1w':True,'rr_hits':True})
+m_warlock = Model('Warlock',t=3,w=2,sv=6,guns=[destructor_3,singing_spear_w],invuln=4,special={'-1w':True,'rr_hits':True})
+u_warlock_conclave = Unit('Farseer, 4 Warlocks, Guide', [m_warlock]*4+[m_farseer],tag='infantry',cost=70+110)
 
 m_falcon = Model('Falcon',t=9,w=12,sv=3,guns=[],special={})
 u_falcon = Unit('Falcon',[m_falcon],tag='vehicle',cost=130)

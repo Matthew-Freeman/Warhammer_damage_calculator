@@ -16,14 +16,34 @@ def main():
 	#ranged_weapon(name, attacks, ballistic skill, strength, armour penetration, damage, ranged/melee, special rules)
 	eldar_heavy_weapons = [scatter_laser,shuriken_cannon,starcannon,bright_lance,missile_launcher_starshot,missile_launcher_sunburst]
 
-	#manual vyper vs marines
+	#manual testing
 	# print("manual vyper v marines",3 * 3/6 * 4/6 * 3/6 * 2, 3 * 1/6 * 6/6 * 3/6 * 2, 2 * 4/6 * 3/4 * 3/6 * 1)
+	# print("manual banshee v marines",2 * 5/6 * 4/6 * 4/6 * 2,)
+	# print("manual banshee v falcon",2 * 5/6 * 1/6 * 4/6 * 2,3 * 5/6 * 2/6 * 5/6 * 3,)
+	# print("manual scorpion v marines",4 * 1 * 3/6 * 3/6 * 1,4*1*4/6*5/6*1)
+	# print("manual spider v marines",3.5 * 1 * 3/6 * 3/6 * 1,3.5*1*3/4*3/6*1)
+	# print("manual avenger v marines",4 * 5/6 * 3/6 * 3/6 * 1)
+	# print("manual reaper v marines",1 * 4/6 * 5/6 * 4/6 * 2)
 
-	plot_dmg_per_pt([u_dark_reapers,u_war_walker_starcannons,u_fire_prism_dispersed,u_fire_prism_focused],[u_marines,u_terminators,u_falcon])
+	# plot_unit_dmg_per_pt([u_dark_reapers,u_war_walker_starcannons,u_fire_prism_dispersed,u_fire_prism_focused],[u_marines,u_terminators,u_falcon])
 
-	plot_wpn_dmg(eldar_heavy_weapons,[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers])
+	# plot_wpn_dmg(eldar_heavy_weapons,[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers])
 
-	plot_unit_dmg([u_rangers,u_vyper_shuriken_cannon],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers])
+	# plot_unit_dmg([u_rangers,u_vyper_shuriken_cannon],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers])
+
+	# plot_unit_dmg([u_dire_avengers, u_fire_dragons],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
+
+	# plot_unit_dmg_per_pt([u_dire_avengers, u_warp_spiders, u_fire_dragons],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'both')
+
+	# plot_unit_dmg([u_dire_avengers, u_warp_spiders_2, u_fire_dragons,u_dark_reapers],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
+	# plot_unit_dmg_per_pt([u_dire_avengers, u_warp_spiders_2, u_fire_dragons,u_dark_reapers],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
+
+	plot_unit_dmg([u_dire_avengers, u_warp_spiders_2, u_fire_dragons,u_dark_reapers],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
+
+	# plot_unit_dmg([u_warp_spiders_1,u_warp_spiders_2,u_warp_spiders_3],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'both')
+
+	# plot_unit_dmg_per_pt([u_striking_scorpions,u_howling_banshees],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'fight')
+
 
 	# for item in Weapon.list:
 	# 	print(item.name)
@@ -35,23 +55,23 @@ def main():
 # 		print('{} vs {} = {:.4f} damage per 100 points'.format(attacker.name,target.name,dmg_per))	
 
 
-def unit_attack(attacking_unit,target_unit):
+def unit_attack(attacking_unit,target_unit,phase):
 	total_damage = 0
 	squad_efficiency = []
 	print("{0} vs {1} ".format(attacking_unit.name,target_unit.name))
 	for attacking_model in attacking_unit.members:
-		temp_damage, efficiency = model_attack(attacking_model,target_unit,attacking_unit.special_rules)
+		temp_damage, efficiency = model_attack(attacking_model,target_unit,attacking_unit.special,phase)
 		total_damage += temp_damage
 		squad_efficiency.append(efficiency)
 	print('= {0:.3f} total wounds on average. Min {1:.0f}% efficiency'.format(total_damage,efficiency*100))
 	# print('Squad efficiency = {}'.format(squad_efficiency))
 	return total_damage
 
-def model_attack(attacking_model,target_unit,special_rules,phase='shooting'):
+def model_attack(attacking_model,target_unit,unit_special_rules,phase='shooting'):
 	total_average_wounds = 0
 	efficiencies = []
 
-	special_rules = attacking_model.special + special_rules
+	special_rules = attacking_model.special | unit_special_rules # | merges dictionaries
 
 	if phase == 'shooting' or phase == 'both':
 		for n, weapon in enumerate(attacking_model.guns):
@@ -91,38 +111,50 @@ def weapon_attack(weapon,target_unit,special_rules,a_type):
 			hit_mod = hit_mod -1
 	if 'heavy' in weapon.special:
 			hit_mod = hit_mod +1
+	
+	cover = False
 	if 'indirect' in special_rules:
 		hit_mod = hit_mod-1
 		indirect=True
 		# bs = min(weapon.bs+1,6)
 		# sv = target_model.sv-1 
 		cover=True
-	
-	if 'ignore_hit_mod' in weapon.special:
+	if 'cover' in target_unit.special:
+		print('unit in cover')
+		cover = True
+
+	if 'ignores_hit_mod' in weapon.special or 'ignores_hit_mod' in special_rules:
 		hit_mod=0
-	if 'no invuln' in weapon.special:
-		inv = None
+	# if 'no invuln' in weapon.special:
+	# 	inv = None
+	if 'ignores_cover' in weapon.special:
+		cover = False
 
 	n_attacks = avg_attacks(a,weapon,target_unit.size)
 
+	rr_hits = False
+	rr_hits1 = False
+	if 'rr_hits' in special_rules: 
+		if type(special_rules['rr_hits'])==bool:
+			rr_hits = special_rules['rr_hits'] #Should always be True
+		elif target_unit.tag in special_rules['rr_hits']:
+			rr_hits = True
+		
+	if 'rr_hits1' in weapon.special:
+		if type(special_rules['rr_hit1s'])==bool:
+			rr_hits = special_rules['rr_hits1']
+		elif target_unit.tag in special_rules['rr_hits1']:
+			rr_hits = True		
+
+	crit_hit = 1/6
+	if 'critical_hits' in special_rules:
+		crit_hit = 1 - (special_rules['critical_hits']-1)/6
 
 	if 'torrent' in weapon.special or 'autohit' in special_rules:
-		p_hit = 1
+		p_normal_hit = 1
+		p_crit_hit = 0
 	else:
-		if 'rr_hits' in special_rules:
-			rr_hits = True
-		else:
-			rr_hits=False
-		if 'rr_h1' in weapon.special:
-			rrh1 = True
-		else:
-			rrh1 = False
-
-		p_hit = hit(bs,hit_mod,rr_hits,rrh1,indirect)
-		# p_hit_base = p_hit
-		# if 'sustained_hits_1' in weapon.special:
-		# 	p_hit = p_hit + 1/6
-
+		p_normal_hit, p_crit_hit = hit(bs,hit_mod,crit_hit,rr_hits,rr_hits1,indirect)
 
 	wound_modifier=0
 	if '+1w' in special_rules:
@@ -131,61 +163,68 @@ def weapon_attack(weapon,target_unit,special_rules,a_type):
 	rr_wounds = False
 	if 'twin_linked' in weapon.special:
 		# print('weapon is twin linked')
-		rr_wounds = True
-	
-		
+		rr_wounds = True	
+	if 'rr_wounds' in special_rules: 
+		if type(special_rules['rr_wounds'])==bool:
+			rr_wounds = special_rules['rr_wounds'] #Should always be True
+		elif target_unit.tag in special_rules['rr_wounds']:
+			rr_wounds = True
 
-	autowound=False
-	if 'autowound_m_nmv' in special_rules and a_type=='melee' and not(target_unit.tag=='vehicle' or target_unit.tag=='monster'):
-		print('autowounding with',weapon.name)
-		autowound = True
-		p_wound = 1
-	else:
-		p_wound = wound(weapon.s,target_model.t,wound_modifier,rr_wounds=rr_wounds)
-	
+	rr_wounds1 = False
+	if 'rr_wounds1' in special_rules: 		
+		if type(special_rules['rr_wounds1'])==bool:
+			rr_wounds1 = special_rules['rr_wounds1'] #Should always be True
+		elif target_unit.tag in special_rules['rr_wounds1']:
+			rr_wounds1 = True
 
-	p_fail_save = fail_save(sv,inv,ap)
-	average_damage, efficiency = avg_damage(weapon,target_model,mortal=False)
+	crit_wound = 1/6
+	if 'anti_infantry' in weapon.special and target_unit.tag=='infantry':
+		crit_wound = 1 - (weapon.special['anti_infantry']-1)/6
+	if 'anti_vehicle' in weapon.special and target_unit.tag=='vehicle':
+		crit_wound = 1 - (weapon.special['anti_vehicle']-1)/6
+	if 'anti_monster' in weapon.special and target_unit.tag=='monster':
+		crit_wound = 1 - (weapon.special['anti_monster']-1)/6
+
+	p_normal_wound, p_crit_wound = wound(weapon.s,target_model.t,wound_modifier,crit_wound,rr_wounds=rr_wounds,rr_1s=rr_wounds1)
+
+	p_fail_save = fail_save(sv,inv,ap,cover)
+
+	rr_damage = False
+	if 'rr_damage_vehicle' in special_rules and target_unit.tag == 'vehicle':
+		print('rerolling damage against vehicle')
+		rr_damage = True
+	if 'rr_damage_monster' in special_rules and target_unit.tag == 'monster':
+		rr_damage = True
+
+	average_damage, efficiency = avg_damage(weapon,target_model,mortal=False,rr_damage=rr_damage)
 	# mortal_damage, efficiency = avg_damage(weapon,target_model,mortal=True)
-	if 'witch' in weapon.special:
-		p_wound = 5/6
-
-	rrw1=False	
-	if 'rrw1' in special_rules:
-		rrw1=True
-	if 'rrw1_v' in special_rules and (target_unit.tag=='vehicle' or target_unit.tag=='monster'):
-		# print('rerolling 1\'s to wound')
-		rrw1=True
-
-	p_crit_hit = 1/6
-	p_crit_wound = 1/6
+	
+	sustained_hits = 0
 	if 'sustained_hits' in weapon.special:
 		sustained_hits = weapon.special['sustained_hits']
-	else:
-		sustained_hits = 0
+
+	lethal_hits = False
 	if 'lethal_hits' in weapon.special:
 		lethal_hits = True
-	else:
-		lethal_hits = False
-	
+
 	if 'devastating_wounds' in weapon.special:
-		non_crit_hit_wounds = (n_attacks * (p_hit-p_crit_hit) * (p_wound-critical_wound_chance) * p_fail_save * average_damage
-						+ n_attacks * (p_hit-p_crit_hit) * critical_wound_chance * 1 * average_damage)
-		sustained_wounds = (n_attacks * p_crit_hit*sustained_hits * (p_wound-critical_wound_chance) * p_fail_save * average_damage
-						+ n_attacks * p_crit_hit*sustained_hits * critical_wound_chance * 1 * average_damage)
+		non_crit_hit_wounds = (n_attacks * p_normal_hit * p_normal_wound * p_fail_save * average_damage
+						+ n_attacks * p_normal_hit * p_crit_wound * 1 * average_damage)
+		sustained_wounds = (n_attacks * p_crit_hit*sustained_hits * p_normal_wound * p_fail_save * average_damage
+						+ n_attacks * p_crit_hit*sustained_hits * p_crit_wound * 1 * average_damage)
 		if lethal_hits:
 			crit_hit_wounds = n_attacks * p_crit_hit * 1 * p_fail_save * average_damage
 		else:
-			crit_hit_wounds = (n_attacks * p_crit_hit * (p_wound-critical_wound_chance) * p_fail_save * average_damage
-							+ n_attacks * p_crit_hit * critical_wound_chance * 1 * average_damage)
+			crit_hit_wounds = (n_attacks * p_crit_hit * p_normal_wound * p_fail_save * average_damage
+							+ n_attacks * p_crit_hit * p_crit_wound * 1 * average_damage)
 
 	else:
-		non_crit_hit_wounds = n_attacks * (p_hit-p_crit_hit) * p_wound * p_fail_save * average_damage
-		sustained_wounds = n_attacks * p_crit_hit*sustained_hits * p_wound * p_fail_save * average_damage
+		non_crit_hit_wounds = n_attacks * p_normal_hit * (p_normal_wound+p_crit_wound) * p_fail_save * average_damage
+		sustained_wounds = n_attacks * p_crit_hit*sustained_hits * (p_normal_wound+p_crit_wound) * p_fail_save * average_damage
 		if lethal_hits:
 			crit_hit_wounds = n_attacks * p_crit_hit * 1 * p_fail_save * average_damage
 		else:
-			crit_hit_wounds = n_attacks * p_crit_hit * p_wound * p_fail_save * average_damage
+			crit_hit_wounds = n_attacks * p_crit_hit * (p_normal_wound+p_crit_wound) * p_fail_save * average_damage
 
 
 	avg_wounds = non_crit_hit_wounds + sustained_wounds + crit_hit_wounds
@@ -209,55 +248,75 @@ def avg_attacks(a,weapon,size): #Returns average number of shots fired
 		avg+= size//5
 	return avg
 
-def hit(bs,hit_mod=0,rr_hits=False,rr_1s=False,indirect=False):
+def hit(bs,hit_mod=0,crit_hit_chance=1/6,rr_hits=False,rr_1s=False,indirect=False):
 	if hit_mod > 1:
 		hit_mod = 1
 	elif hit_mod <-1:
 		hit_mod = -1
 	bs = bs - hit_mod
 	if bs <= 1:
-		p = 5/6
+		hit_chance = 5/6
 	elif bs >= 6:
-		p = 1/6 
+		hit_chance = 1/6 
 	else:
-		p = (7-bs)/6
-	if indirect and p > 3/6:
-		p = 3/6
-	if rr_hits:
-		p = 1-(1-p)**2
-	elif rr_1s:
-		p = p + 1/6*p
-	return p
+		hit_chance = (7-bs)/6
+	if indirect and hit_chance > 3/6:
+		hit_chance = 3/6
+	
+	p_normal_hit = max(hit_chance-crit_hit_chance,0)
+	p_crit_hit = crit_hit_chance
+	p_miss = 1-(p_normal_hit+p_crit_hit)
 
-def wound(s,t,wound_mod=0,rr_wounds=False,rr_1s=False):
+	if rr_hits:
+		p_crit_hit = crit_hit_chance + p_miss*crit_hit_chance
+		p_normal_hit = 1 - (p_miss)**2 - p_crit_hit
+	elif rr_1s:
+		p_crit_hit = crit_hit_chance + 1/6*crit_hit_chance
+		p_normal_hit = p_normal_hit + 1/6*p_normal_hit
+	
+	return p_normal_hit, p_crit_hit
+
+def wound(s,t,wound_mod=0,crit_wound_chance=1/6,rr_wounds=False,rr_1s=False):
 	#returns the probability of strength s wounding toughness t
 	if wound_mod > 1:
 		wound_mod = 1
 	elif wound_mod <-1:
 		wound_mod = -1
 	if s == t:
-		p = 3
+		wound_chance = 3/6
 	elif s >= 2*t:
-		p = 5
+		wound_chance = 5/6
 	elif s <= t/2:
-		p = 1
+		wound_chance = 1/6
 	elif s > t:
-		p = 4
+		wound_chance = 4/6
 	elif s < t:
-		p = 2
-	p+=wound_mod
-	if p > 5:
-		p = 5
-	elif p < 1:
-		p = 1
-	p = p/6
+		wound_chance = 2/6
+	wound_chance+=wound_mod/6
+	if wound_chance > 5/6:
+		wound_chance = 5/6
+	elif wound_chance < 1/6:
+		wound_chance = 1/6
+	
+	# if rr_wounds:
+	# 	# print('rr_wounds:', p)
+	# 	p = 1-(1-p)**2
+	# 	# print('goes to:', p)
+	# elif rr_1s:
+	# 	p = p + 1/6*p
+
+	p_normal_wound = max(wound_chance-crit_wound_chance,0)
+	p_crit_wound = crit_wound_chance
+	p_fail = 1-(p_normal_wound+p_crit_wound)
+
 	if rr_wounds:
-		# print('rr_wounds:', p)
-		p = 1-(1-p)**2
-		# print('goes to:', p)
+		p_crit_wound = crit_wound_chance + p_fail*crit_wound_chance
+		p_normal_wound = 1 - (p_fail)**2 - p_crit_wound
 	elif rr_1s:
-		p = p + 1/6*p
-	return p
+		p_crit_wound = crit_wound_chance + 1/6*crit_wound_chance
+		p_normal_wound = p_normal_wound + 1/6*p_normal_wound
+
+	return p_normal_wound, p_crit_wound
 
 def fail_save(sv,inv,ap,cover=False):
 	sv2 = sv - ap 
@@ -275,11 +334,11 @@ def fail_save(sv,inv,ap,cover=False):
 		p = (sv3-1)/6
 	return p
 
-def avg_damage(weapon,target_model,mortal=False):
+def avg_damage(weapon,target_model,rr_damage=False,mortal=False):
 	d = weapon.damage
 	w = target_model.w
 	if 'melta' in weapon.special:
-		d+= weapon.special['melta']
+		d = d + '+' + str(weapon.special['melta'])
 	# if special == '-1D':
 	if '-1D' in target_model.special:
 		resist = -1
@@ -311,6 +370,19 @@ def avg_damage(weapon,target_model,mortal=False):
 		damage.append(min(roll2,w))
 	average_damage = sum(damage)/len(damage)
 
+	if rr_damage:
+		print('rerolling damage. Before =', average_damage)
+		damage = []
+		for roll in roll_results:
+			roll3 = max(math.ceil(roll*damage_multiplier+resist),1)
+			inflicted = min(roll3,w)
+			if inflicted < average_damage:
+				damage.append(average_damage)
+			else:
+				damage.append(inflicted)
+		average_damage = sum(damage)/len(damage)
+		print('After =', average_damage)
+
 	efficiency = 1.0
 	if scale_for_wounded_models:
 		if len(roll_results) == 1: #if fixed damage, then scale
@@ -332,11 +404,11 @@ def roll_recursion(n_dice,D_size,roll_results=[],sum=0): #rolls all possible com
 			roll_recursion(n_dice-1,D_size,roll_results,sum=i+sum)
 	return roll_results
 
-def plot_dmg_per_pt(attacker_list,target_list):
+def plot_unit_dmg_per_pt(attacker_list,target_list,phase):
 	results = np.zeros((len(attacker_list),len(target_list)))
 	for i, enemy in enumerate(target_list):
 		for j, attacker in enumerate(attacker_list):
-			average_wounds = unit_attack(attacker,enemy)
+			average_wounds = unit_attack(attacker,enemy,phase)
 			results[j,i] = average_wounds / (attacker.cost) *pt_scale  
 			print('{:.3f} wounds divided by {} pts = {:.3f} wounds per {} pts\n'.format(average_wounds,attacker.cost,results[j,i],pt_scale))
 	print('----------------------------\n')
@@ -349,18 +421,18 @@ def plot_dmg_per_pt(attacker_list,target_list):
 				label=attacker.name,zorder=3)
 	plt.xlabel("Target")
 	plt.ylabel("Average wounds per {} pts".format(pt_scale))
-	plt.title("Wounds per {} points".format(pt_scale))
+	plt.title("Wounds per {} points. Phase={}".format(pt_scale,phase))
 	plt.xticks(r + len(attacker_list)*width/2, [k.name for k in target_list])
 	plt.legend(loc='best')
 	plt.grid(zorder=0)
 	# plt.show()
 	# print('done')
 
-def plot_unit_dmg(attacker_list,target_list):
+def plot_unit_dmg(attacker_list,target_list,phase):
 	results = np.zeros((len(attacker_list),len(target_list)))
 	for i, enemy in enumerate(target_list):
 		for j, attacker in enumerate(attacker_list):
-			results[j,i] = unit_attack(attacker,enemy) 
+			results[j,i] = unit_attack(attacker,enemy,phase) 
 			print('') 
 	print('----------------------------\n')
 	r = np.arange(len(target_list))
@@ -372,7 +444,7 @@ def plot_unit_dmg(attacker_list,target_list):
 				label=attacker.name,zorder=3)
 	plt.xlabel("Target")
 	plt.ylabel("Average wounds")
-	plt.title("Wounds")
+	plt.title("Wounds. Phase={}".format(phase))
 	plt.xticks(r + len(attacker_list)*width/2, [k.name for k in target_list])
 	plt.legend(loc='best')
 	plt.grid(zorder=0)

@@ -74,8 +74,8 @@ u_warp_spiders_1 = Unit("5 Warp Spiders (spinneret rifle)",[m_warp_spider]*4 + [
 u_warp_spiders_2 = Unit("5 Warp Spiders (powerblades)",[m_warp_spider]*4 + [m_warp_spider_exarch_2],tag='infrantry',cost=95)
 u_warp_spiders_3 = Unit("5 Warp Spiders (powerblade array)",[m_warp_spider]*4 + [m_warp_spider_exarch_3],tag='infrantry',cost=95)
 
-m_farseer = Model('Farseer',t=3,w=4,sv=6,guns=[eldritch_storm,singing_spear_f],invuln=4,special={'-1w':True,'rr_hits':True})
-m_warlock = Model('Warlock',t=3,w=2,sv=6,guns=[destructor_3,singing_spear_w],invuln=4,special={'-1w':True,'rr_hits':True})
+m_farseer = Model('Farseer',t=3,w=4,sv=6,guns=[eldritch_storm,singing_spear_f],invuln=4,special={'-1w':True,'+1h':True})
+m_warlock = Model('Warlock',t=3,w=2,sv=6,guns=[destructor_3,singing_spear_w],invuln=4,special={'-1w':True,'+1h':True})
 u_warlock_conclave = Unit('Farseer, 4 Warlocks, Guide', [m_warlock]*4+[m_farseer],tag='infantry',cost=70+110)
 
 m_falcon = Model('Falcon',t=9,w=12,sv=3,guns=[],special={})

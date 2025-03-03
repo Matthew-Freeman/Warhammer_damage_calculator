@@ -16,17 +16,8 @@ def main():
 	#ranged_weapon(name, attacks, ballistic skill, strength, armour penetration, damage, ranged/melee, special rules)
 	eldar_heavy_weapons = [scatter_laser,shuriken_cannon,starcannon,bright_lance,missile_launcher_starshot,missile_launcher_sunburst]
 
-	#manual testing
-	# print("manual vyper v marines",3 * 3/6 * 4/6 * 3/6 * 2, 3 * 1/6 * 6/6 * 3/6 * 2, 2 * 4/6 * 3/4 * 3/6 * 1)
-	# print("manual banshee v marines",2 * 5/6 * 4/6 * 4/6 * 2,)
-	# print("manual banshee v falcon",2 * 5/6 * 1/6 * 4/6 * 2,3 * 5/6 * 2/6 * 5/6 * 3,)
-	# print("manual scorpion v marines",4 * 1 * 3/6 * 3/6 * 1,4*1*4/6*5/6*1)
-	# print("manual spider v marines",3.5 * 1 * 3/6 * 3/6 * 1,3.5*1*3/4*3/6*1)
-	# print("manual avenger v marines",4 * 5/6 * 3/6 * 3/6 * 1)
-	# print("manual reaper v marines",1 * 4/6 * 5/6 * 4/6 * 2)
-	print("manual warlock v marines",5.5 * 1 * 4/6 * 3/6 * 1, 1 * 8/9 * 5/6*2/6*2)
-	print("manual farseer v marines",4.5*8/9*4/6*4/6*5/3)
 
+	run_tests()
 	# plot_unit_dmg_per_pt([u_dark_reapers,u_war_walker_starcannons,u_fire_prism_dispersed,u_fire_prism_focused],[u_marines,u_terminators,u_falcon])
 
 	# plot_wpn_dmg(eldar_heavy_weapons,[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers])
@@ -46,7 +37,7 @@ def main():
 	# plot_unit_dmg_per_pt([u_dire_avengers, u_warp_spiders_2, u_fire_dragons,u_dark_reapers],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 	# plot_unit_dmg_per_pt([u_warlock_conclave],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 
-	# plot_unit_dmg_per_pt([u_dire_avengers, u_warp_spiders_2, u_fire_dragons,u_dark_reapers_1,u_dark_reapers_2,u_warlock_conclave],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
+	plot_unit_dmg_per_pt([u_dire_avengers, u_warp_spiders_2, u_fire_dragons,u_dark_reapers_1,u_dark_reapers_2,u_warlock_conclave],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 
 	plot_unit_dmg_per_pt([u_falcon_scatter,u_falcon_lance,u_fire_prism_focused,u_fire_prism_dispersed],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 
@@ -61,19 +52,21 @@ def main():
 # 		print('{} vs {} = {:.4f} damage per 100 points'.format(attacker.name,target.name,dmg_per))	
 
 
-def unit_attack(attacking_unit,target_unit,phase):
+def unit_attack(attacking_unit,target_unit,phase,verbose=1):
 	total_damage = 0
 	squad_efficiency = []
-	print("{0} vs {1} ".format(attacking_unit.name,target_unit.name))
+	if verbose > 0:
+		print("{0} vs {1} ".format(attacking_unit.name,target_unit.name))
 	for attacking_model in attacking_unit.members:
-		temp_damage, efficiency = model_attack(attacking_model,target_unit,attacking_unit.special,phase)
+		temp_damage, efficiency = model_attack(attacking_model,target_unit,attacking_unit.special,phase,verbose)
 		total_damage += temp_damage
 		squad_efficiency.append(efficiency)
-	print('= {0:.3f} total wounds on average. Min {1:.0f}% efficiency'.format(total_damage,efficiency*100))
+	if verbose > 0:
+		print('= {0:.3f} total wounds on average. Min {1:.0f}% efficiency'.format(total_damage,efficiency*100))
 	# print('Squad efficiency = {}'.format(squad_efficiency))
 	return total_damage
 
-def model_attack(attacking_model,target_unit,unit_special_rules,phase='shooting'):
+def model_attack(attacking_model,target_unit,unit_special_rules,phase='shooting',verbose=0):
 	total_average_wounds = 0
 	efficiencies = []
 
@@ -82,14 +75,16 @@ def model_attack(attacking_model,target_unit,unit_special_rules,phase='shooting'
 	if phase == 'shooting' or phase == 'both':
 		for n, weapon in enumerate(attacking_model.guns):
 			avg_wounds, efficiency = weapon_attack(weapon,target_unit,special_rules,a_type='ranged')
-			print('{:.4f} wounds with {}'.format(avg_wounds,weapon.name))
+			if verbose > 0:
+				print('{:.4f} wounds with {}'.format(avg_wounds,weapon.name))
 			total_average_wounds += avg_wounds
 			efficiencies.append(efficiency)
 	
 	if phase == 'fight' or phase == 'both':
 		for n, weapon in enumerate(attacking_model.swords):
 			avg_wounds, efficiency = weapon_attack(weapon,target_unit,special_rules,a_type='melee')
-			print('{:.4f} wounds with {}'.format(avg_wounds,weapon.name))
+			if verbose > 0:
+				print('{:.4f} wounds with {}'.format(avg_wounds,weapon.name))
 			total_average_wounds += avg_wounds
 			efficiencies.append(efficiency)
 
@@ -110,17 +105,21 @@ def weapon_attack(weapon,target_unit,special_rules,a_type):
 	indirect = False
 
 	if '-1ap' in target_model.special:
-			ap = min(weapon.ap+1,0)
+		ap = min(weapon.ap+1,0)
 	if '-1h' in target_model.special:
-			hit_mod = hit_mod -1
+		hit_mod -=1
 	if 'stealth' in target_model.special:
-			hit_mod = hit_mod -1
+		hit_mod -=1
 	if 'heavy' in weapon.special:
-			hit_mod = hit_mod +1
+		hit_mod +=1
+	if '+1h' in special_rules:
+		hit_mod +=1
+
+
 	
 	cover = False
 	if 'indirect' in special_rules:
-		hit_mod = hit_mod-1
+		hit_mod -=1
 		indirect=True
 		# bs = min(weapon.bs+1,6)
 		# sv = target_model.sv-1 
@@ -415,7 +414,7 @@ def plot_unit_dmg_per_pt(attacker_list,target_list,phase):
 	results = np.zeros((len(attacker_list),len(target_list)))
 	for i, enemy in enumerate(target_list):
 		for j, attacker in enumerate(attacker_list):
-			average_wounds = unit_attack(attacker,enemy,phase)
+			average_wounds = unit_attack(attacker,enemy,phase,verbose=1)
 			results[j,i] = average_wounds / (attacker.cost) *pt_scale  
 			print('{:.3f} wounds divided by {} pts = {:.3f} wounds per {} pts\n'.format(average_wounds,attacker.cost,results[j,i],pt_scale))
 	print('----------------------------\n')
@@ -439,7 +438,7 @@ def plot_unit_dmg(attacker_list,target_list,phase):
 	results = np.zeros((len(attacker_list),len(target_list)))
 	for i, enemy in enumerate(target_list):
 		for j, attacker in enumerate(attacker_list):
-			results[j,i] = unit_attack(attacker,enemy,phase) 
+			results[j,i] = unit_attack(attacker,enemy,phase,verbose=1) 
 			print('') 
 	print('----------------------------\n')
 	r = np.arange(len(target_list))
@@ -481,6 +480,30 @@ def plot_wpn_dmg(weapon_list,target_list):
 	plt.grid(zorder=0)
 	# plt.show()
 	# print('done')	
+
+def test_unit_attack(attacker,enemy,phase,expected):
+	sim_result = unit_attack(attacker,enemy,phase,verbose=0)
+	if sim_result - expected < 0.01 :
+		result = "Passed"
+	else:
+		result = "Failed"
+	print('{} vs {}. Sim result = {:.4f}. Expected result = {:.4f}. Test {}'.format(attacker.name,enemy.name,sim_result,expected,result))
+
+
+def run_tests():
+	print('Running tests:')
+	test_unit_attack(u_dire_avengers,u_marines,'shooting',6*4*5/6*3/6*3/6*1)
+	test_unit_attack(u_vyper_shuriken_cannon,u_marines,'shooting',3 * 3/6 * 4/6 * 3/6 * 2 + 3 * 1/6 * 6/6 * 3/6 * 2 + 2 * 4/6 * 3/4 * 3/6 * 1)
+	test_unit_attack(u_howling_banshees,u_falcon,'fight',4*2 * 5/6 * 1/6 * 4/6 * 2 + 3 * 5/6 * 2/6 * 5/6 * 3)
+	test_unit_attack(u_warlock_conclave,u_marines,'shooting',4 * 5.5 * 1 * 4/6 * 3/6 * 1 + 5 * 1 * 5/6 * 5/6 * 2/6 *2 + 1*4.5*5/6*4/6*4/6*5/3)
+	test_unit_attack(u_howling_banshees,u_marines,'fight',4* 2 * 5/6 * 4/6 * 4/6 * 2 + 3*5/6*4/6*5/6*2)
+	print("Tests complete\n")
+	#manual testing
+	# print("manual banshee v marines",2 * 5/6 * 4/6 * 4/6 * 2,)
+	# print("manual scorpion v marines",4 * 1 * 3/6 * 3/6 * 1,4*1*4/6*5/6*1)
+	# print("manual spider v marines",3.5 * 1 * 3/6 * 3/6 * 1,3.5*1*3/4*3/6*1)
+	# print("manual avenger v marines",4 * 5/6 * 3/6 * 3/6 * 1)
+	# print("manual reaper v marines",1 * 4/6 * 5/6 * 4/6 * 2)
 
 
 if __name__ == "__main__":

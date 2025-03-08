@@ -45,6 +45,9 @@ u_guardsmen = Unit('10 Guardsmen',[m_guardsman]*10,tag='infantry')
 m_dire_avenger = Model('Dire Avenger',t=3,w=1,sv=4,guns=[avenger_catapult],swords=[aspect_close_combat_weapon],invuln=5,special={})
 m_dire_avenger_exarch = Model('Dire Avenger Exarch',t=3,w=2,sv=4,guns=[avenger_catapult,avenger_catapult],swords=[aspect_close_combat_weapon],invuln=5,special={})
 u_dire_avengers = Unit('5 Dire Avengers',[m_dire_avenger]*4 + [m_dire_avenger_exarch],tag='infantry',cost=75)
+u_dire_avengers_blitz = Unit('5 Dire Avengers Blitzing Firepower',[m_dire_avenger]*4 + [m_dire_avenger_exarch],tag='infantry',special={'critical_hits':5},cost=75)
+
+
 
 m_fire_dragon = Model('Fire Dragon',t=3,w=1,sv=3,guns=[dragon_fusion_gun],swords=[aspect_close_combat_weapon],invuln=5,special={'rr_hits':['monster','vehicle'],'rr_wounds':['monster','vehicle'],'rr_damage':['monster','vehicle']})
 m_fire_dragon_exarch = Model('Fire Dragon Exarch',t=3,w=2,sv=3,guns=[firepike],swords=[aspect_close_combat_weapon],invuln=5,special={'rr_hits':['monster','vehicle'],'rr_wounds':['monster','vehicle'],'rr_damage':['monster','vehicle']})
@@ -74,9 +77,10 @@ u_warp_spiders_1 = Unit("5 Warp Spiders (spinneret rifle)",[m_warp_spider]*4 + [
 u_warp_spiders_2 = Unit("5 Warp Spiders (powerblades)",[m_warp_spider]*4 + [m_warp_spider_exarch_2],tag='infrantry',cost=95)
 u_warp_spiders_3 = Unit("5 Warp Spiders (powerblade array)",[m_warp_spider]*4 + [m_warp_spider_exarch_3],tag='infrantry',cost=95)
 
-m_farseer = Model('Farseer',t=3,w=4,sv=6,guns=[eldritch_storm,singing_spear_f],invuln=4,special={'-1w':True,'+1h':True})
-m_warlock = Model('Warlock',t=3,w=2,sv=6,guns=[destructor_3,singing_spear_w],invuln=4,special={'-1w':True,'+1h':True})
-u_warlock_conclave = Unit('Farseer, 4 Warlocks, Guide', [m_warlock]*4+[m_farseer],tag='infantry',cost=70+110)
+m_farseer = Model('Farseer',t=3,w=4,sv=6,guns=[eldritch_storm,singing_spear_f],invuln=4,special={'-1w':True})
+m_warlock = Model('Warlock',t=3,w=2,sv=6,guns=[destructor_3,singing_spear_w],invuln=4,special={'-1w':True})
+u_warlock_conclave = Unit('Farseer, 4 Warlocks, Guide', [m_warlock]*4+[m_farseer],tag='infantry',special={'+1h':True},cost=70+110)
+u_warlock_conclave_blitz = Unit('Farseer, 4 Warlocks, Guide, Blitzing Firepower', [m_warlock]*4+[m_farseer],tag='infantry',special={'+1h':True,'sustained_hits':1},cost=70+110)
 
 m_falcon = Model('Falcon',t=9,w=12,sv=3,guns=[],special={})
 u_falcon = Unit('Falcon',[m_falcon],tag='vehicle',cost=130)
@@ -101,7 +105,13 @@ u_war_walker_starcannons = Unit('War Walker with starcannons',[m_war_walker_star
 m_vyper_shuriken_cannon = Model('Vyper with shuriken cannon',t=6,w=6,sv=3,guns=[shuriken_cannon,twin_shuriken_catapult],special={})
 u_vyper_shuriken_cannon = Unit('Vyper with shuriken cannon',[m_vyper_shuriken_cannon],tag='vehicle',cost=65)
 
-
-
 m_ranger = Model('Ranger',t=3,w=1,sv=5,guns=[ranger_long_rifle],invuln=5,special=['stealth'])
 u_rangers = Unit('5 Rangers',[m_ranger]*5,tag='infantry',cost=55)
+
+m_wraithguard = Model('Wraithguard',t=6,w=3,sv=2,guns=[wraithcannon])
+u_wraithguard = Unit('5 Wraithguard',[m_wraithguard]*5,tag='infantry',special={'+1h':True},cost=170)
+u_wraithguard_blitz = Unit('5 Wraithguard Blitzing Firepower',[m_wraithguard]*5,tag='infantry',special={'+1h':True,'sustained_hits':1},cost=170)
+
+m_wraithlord = Model('Wraithlord',t=10,w=10,sv=2,guns=[shuriken_cannon,shuriken_cannon,flamer,flamer])
+# m_wraithlord = Model('Wraithlord',t=10,w=10,sv=2,guns=[shuriken_cannon_wl,shuriken_cannon_wl,flamer,flamer])
+u_wraithlord = Unit('Wraithlord',[m_wraithlord],tag='monster',cost=140)

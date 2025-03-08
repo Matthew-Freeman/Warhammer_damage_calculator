@@ -47,7 +47,7 @@ prism_cannon_focused = Weapon('Prism Cannon focused',2,3,18,-4,6,'ranged',specia
 pulse_laser = Weapon('Pulse laser',3,3,9,-2,'D6','ranged')
 
 shuriken_catapult = Weapon('Shuriken catapult',2, 3, 4, -1, 1,'ranged',special={})
-shuriken_pistol = Weapon('Shuriken pistol',1, 3, 4, -1, 1,'ranged',special={'pistol':True})
+shuriken_pistol = Weapon('Shuriken pistol',1, 3, 4, -1, 1,'ranged',special={})
 twin_shuriken_catapult = Weapon('Twin Shuriken catapult',2, 3, 4, -1, 1,'ranged',special={'twin_linked':True})
 ranger_long_rifle = Weapon('Ranger Long Rifle',1, 3, 4, -1, 2,'ranged',special={'heavy':True})
 flamer = Weapon('Flamer','D6','N/A',4,0,1,'ranged',special={'torrent':True})

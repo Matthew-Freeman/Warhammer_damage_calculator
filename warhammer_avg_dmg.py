@@ -18,6 +18,7 @@ def main():
 
 
 	run_tests()
+
 	# plot_unit_dmg_per_pt([u_dark_reapers,u_war_walker_starcannons,u_fire_prism_dispersed,u_fire_prism_focused],[u_marines,u_terminators,u_falcon])
 
 	# plot_wpn_dmg(eldar_heavy_weapons,[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers])
@@ -48,10 +49,6 @@ def main():
 
 	plt.show()
 
-# def dmg_per_pt(attacker,target):
-# 		dmg_per = unit_attack(attacker,target) / (attacker.cost) *100
-# 		print('{} vs {} = {:.4f} damage per 100 points'.format(attacker.name,target.name,dmg_per))	
-
 
 def unit_attack(attacking_unit,target_unit,phase,verbose=1):
 	total_damage = 0
@@ -64,7 +61,6 @@ def unit_attack(attacking_unit,target_unit,phase,verbose=1):
 		squad_efficiency.append(efficiency)
 	if verbose > 0:
 		print('= {0:.3f} total wounds on average. Min {1:.0f}% efficiency'.format(total_damage,efficiency*100))
-	# print('Squad efficiency = {}'.format(squad_efficiency))
 	return total_damage
 
 def model_attack(attacking_model,target_unit,attacking_unit_special_rules,phase='shooting',verbose=0):
@@ -170,7 +166,6 @@ def weapon_attack(weapon,target_unit,attacker_special_rules,a_type):
 
 	rr_wounds = False
 	if 'twin_linked' in attacker_special_rules:
-		# print('weapon is twin linked')
 		rr_wounds = True	
 	if 'rr_wounds' in attacker_special_rules: 
 		if type(attacker_special_rules['rr_wounds'])==bool:
@@ -198,11 +193,18 @@ def weapon_attack(weapon,target_unit,attacker_special_rules,a_type):
 	p_fail_save = fail_save(sv,inv,ap,cover)
 
 	rr_damage = False
-	if 'rr_damage_vehicle' in attacker_special_rules and target_unit.tag == 'vehicle':
-		print('rerolling damage against vehicle')
-		rr_damage = True
-	if 'rr_damage_monster' in attacker_special_rules and target_unit.tag == 'monster':
-		rr_damage = True
+	# if 'rr_damage_vehicle' in attacker_special_rules and target_unit.tag == 'vehicle':
+	# 	print('rerolling damage against vehicle')
+	# 	rr_damage = True
+	# if 'rr_damage_monster' in attacker_special_rules and target_unit.tag == 'monster':
+	# 	rr_damage = True
+	if 'rr_damage' in attacker_special_rules: 		
+		if type(attacker_special_rules['rr_damage'])==bool:
+			rr_damage = attacker_special_rules['rr_damage'] #Should always be True
+		elif target_unit.tag in attacker_special_rules['rr_damage']:
+			rr_damage = True
+
+
 
 	average_damage, efficiency = avg_damage(weapon,target_model,mortal=False,rr_damage=rr_damage)
 	# mortal_damage, efficiency = avg_damage(weapon,target_model,mortal=True)
@@ -307,13 +309,6 @@ def wound(s,t,wound_mod=0,crit_wound_chance=1/6,rr_wounds=False,rr_1s=False):
 		wound_chance = 5/6
 	elif wound_chance < 1/6:
 		wound_chance = 1/6
-	
-	# if rr_wounds:
-	# 	# print('rr_wounds:', p)
-	# 	p = 1-(1-p)**2
-	# 	# print('goes to:', p)
-	# elif rr_1s:
-	# 	p = p + 1/6*p
 
 	p_normal_wound = max(wound_chance-crit_wound_chance,0)
 	p_crit_wound = crit_wound_chance
@@ -368,7 +363,7 @@ def avg_damage(weapon,target_model,rr_damage=False,mortal=False):
 			n_dice = 1
 		else:
 			n_dice = int(d[d.index('D')-1])
-		roll_results = roll_recursion(n_dice,dice_size)
+		roll_results = roll_recursion(n_dice,dice_size,[])
 		if '+' in d:
 			# added_damage = int(d[d.index('+')+1])
 			added_damage = int(d.split('+')[-1])
@@ -381,7 +376,6 @@ def avg_damage(weapon,target_model,rr_damage=False,mortal=False):
 	average_damage = sum(damage)/len(damage)
 
 	if rr_damage:
-		print('rerolling damage. Before =', average_damage)
 		damage = []
 		for roll in roll_results:
 			roll3 = max(math.ceil(roll*damage_multiplier+resist),1)
@@ -391,7 +385,6 @@ def avg_damage(weapon,target_model,rr_damage=False,mortal=False):
 			else:
 				damage.append(inflicted)
 		average_damage = sum(damage)/len(damage)
-		print('After =', average_damage)
 
 	efficiency = 1.0
 	if scale_for_wounded_models:
@@ -399,14 +392,10 @@ def avg_damage(weapon,target_model,rr_damage=False,mortal=False):
 			shots_to_kill = np.ceil(w/damage[0])
 			efficiency = w/(damage[0]*shots_to_kill)
 			average_damage = average_damage*efficiency
-			# print('{} shots to kill. Efficiency = {:.0f}%'.format(shots_to_kill,efficiency*100))
-		else:
-			pass
-			# print('Not scaling for inefficiency, random damage = {}'.format(roll_results))
 
 	return average_damage, efficiency
 
-def roll_recursion(n_dice,D_size,roll_results=[],sum=0): #rolls all possible combinations of n dice, returns a list of the sums.
+def roll_recursion(n_dice,D_size,roll_results,sum=0): #rolls all possible combinations of n dice, returns a list of the sums.
 	if n_dice == 0:
 		roll_results.append(sum)
 	else:
@@ -436,7 +425,6 @@ def plot_unit_dmg_per_pt(attacker_list,target_list,phase):
 	plt.legend(loc='best')
 	plt.grid(zorder=0)
 	# plt.show()
-	# print('done')
 
 def plot_unit_dmg(attacker_list,target_list,phase):
 	results = np.zeros((len(attacker_list),len(target_list)))
@@ -459,7 +447,6 @@ def plot_unit_dmg(attacker_list,target_list,phase):
 	plt.legend(loc='best')
 	plt.grid(zorder=0)
 	# plt.show()
-	# print('done')
 
 def plot_wpn_dmg(weapon_list,target_list):
 	results = np.zeros((len(weapon_list),len(target_list)))
@@ -483,7 +470,7 @@ def plot_wpn_dmg(weapon_list,target_list):
 	plt.legend(loc='best')
 	plt.grid(zorder=0)
 	# plt.show()
-	# print('done')
+
 
 def test_unit_attack(attacker,enemy,phase,expected):
 	sim_result = unit_attack(attacker,enemy,phase,verbose=0)
@@ -503,16 +490,13 @@ def run_tests():
 	results.append(test_unit_attack(u_howling_banshees,u_falcon,'fight',4*2 * 5/6 * 1/6 * 4/6 * 2 + 3 * 5/6 * 2/6 * 5/6 * 3))
 	results.append(test_unit_attack(u_warlock_conclave,u_marines,'shooting',4 * 5.5 * 1 * 4/6 * 3/6 * 1 + 5 * 1 * 5/6 * 5/6 * 2/6 *2 + 1*4.5*5/6*4/6*4/6*5/3))
 	results.append(test_unit_attack(u_howling_banshees,u_marines,'fight',4* 2 * 5/6 * 4/6 * 4/6 * 2 + 3*5/6*4/6*5/6*2))
+	results.append(test_unit_attack(u_fire_dragons,u_falcon,'shooting',4*8/9*3/4*1*(6.5+6.5+6.5+7+8+9)/6 + 1*8/9*8/9*1*(6.5+6.5+6.5+7+8+9)/6))
+
 	if all(results):
 		print("All tests complete\n")
 	else:
 		print('Test failed\n')
-	#manual testing
-	# print("manual banshee v marines",2 * 5/6 * 4/6 * 4/6 * 2,)
-	# print("manual scorpion v marines",4 * 1 * 3/6 * 3/6 * 1,4*1*4/6*5/6*1)
-	# print("manual spider v marines",3.5 * 1 * 3/6 * 3/6 * 1,3.5*1*3/4*3/6*1)
-	# print("manual avenger v marines",4 * 5/6 * 3/6 * 3/6 * 1)
-	# print("manual reaper v marines",1 * 4/6 * 5/6 * 4/6 * 2)
+
 
 
 if __name__ == "__main__":

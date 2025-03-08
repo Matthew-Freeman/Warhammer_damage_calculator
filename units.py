@@ -30,6 +30,32 @@ class Model():
 		self.cost = cost
 		Model.list.append(self)
 
+"""
+Implemented Special Rules:
+{
+'sustained_hits':1
+'lethal_hits':True
+'critical_hits':5
+'+1h':True
+'rr_hits':['monster','vehicle'],
+'rr_h1':True
+'rr_wounds':['monster,vehicle'],
+'rr_damage':['monster','vehicle']
+'anti_infantry':3
+'anti_vehicle':3
+'anti_monster':3
+heavy':True
+'blast':True
+'melta':3
+'torrent':True,
+'twin_linked':True
+'ignores_cover':True
+'ignores_hit_mod':True
+'-1w':True
+
+}
+"""
+
 
 
 m_marine = Model('Marine',t=4,w=2,sv=3,guns=[],special={})

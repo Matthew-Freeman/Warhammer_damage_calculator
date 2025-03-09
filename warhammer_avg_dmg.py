@@ -38,11 +38,11 @@ def main():
 	# plot_unit_dmg_per_pt([u_dire_avengers, u_warp_spiders_2, u_fire_dragons,u_dark_reapers],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 	# plot_unit_dmg_per_pt([u_warlock_conclave],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 
-	plot_unit_dmg([u_dire_avengers, u_dire_avengers_blitz, u_warp_spiders_2, u_fire_dragons,u_dark_reapers_1,u_dark_reapers_2,u_warlock_conclave,u_warlock_conclave_blitz],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
+	# plot_unit_dmg([u_dire_avengers, u_dire_avengers_blitz, u_warp_spiders_2, u_fire_dragons,u_dark_reapers_1,u_dark_reapers_2,u_warlock_conclave,u_warlock_conclave_blitz],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 
 	plot_unit_dmg([u_falcon_scatter,u_falcon_lance,u_fire_prism_focused,u_fire_prism_dispersed],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 
-	plot_unit_dmg([u_wraithguard,u_wraithguard_blitz,u_wraithlord],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
+	# plot_unit_dmg([u_wraithguard,u_wraithguard_blitz,u_wraithlord],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 
 	# for item in Weapon.list:
 	# 	print(item.name)
@@ -156,7 +156,7 @@ def weapon_attack(weapon,target_unit,attacker_special_rules,a_type):
 		p_normal_hit = 1
 		p_crit_hit = 0
 	else:
-		p_normal_hit, p_crit_hit = hit(bs,hit_mod,crit_hit,rr_hits,rr_hits1,indirect)
+		p_normal_hit, p_crit_hit, p_miss = hit(bs,hit_mod,crit_hit,rr_hits,rr_hits1,indirect)
 
 	wound_modifier=0
 	if '+1w' in attacker_special_rules:
@@ -188,7 +188,7 @@ def weapon_attack(weapon,target_unit,attacker_special_rules,a_type):
 	if 'anti_monster' in attacker_special_rules and target_unit.tag=='monster':
 		crit_wound = 1 - (attacker_special_rules['anti_monster']-1)/6
 
-	p_normal_wound, p_crit_wound = wound(weapon.s,target_model.t,wound_modifier,crit_wound,rr_wounds=rr_wounds,rr_1s=rr_wounds1)
+	p_normal_wound, p_crit_wound, p_fail_wound= wound(weapon.s,target_model.t,wound_modifier,crit_wound,rr_wounds=rr_wounds,rr_1s=rr_wounds1)
 
 	p_fail_save = fail_save(sv,inv,ap,cover)
 
@@ -219,6 +219,13 @@ def weapon_attack(weapon,target_unit,attacker_special_rules,a_type):
 	if 'lethal_hits' in attacker_special_rules:
 		lethal_hits = True
 
+
+	if 'rr_one_hit' in attacker_special_rules:
+		p_miss, p_normal_hit, p_crit_hit = rr_one(p_miss,p_normal_hit,p_crit_hit,n_attacks,True)
+
+	if 'rr_one_wound' in attacker_special_rules:  #this doesn't really work, the maths assumes all successful hits.
+		p_fail_wound, p_normal_wound, p_crit_wound = rr_one(p_fail_wound,p_normal_wound,p_crit_wound,n_attacks,True)		
+
 	if 'devastating_wounds' in attacker_special_rules:
 		non_crit_hit_wounds = (n_attacks * p_normal_hit * p_normal_wound * p_fail_save * average_damage
 						+ n_attacks * p_normal_hit * p_crit_wound * 1 * average_damage)
@@ -237,6 +244,7 @@ def weapon_attack(weapon,target_unit,attacker_special_rules,a_type):
 			crit_hit_wounds = n_attacks * p_crit_hit * 1 * p_fail_save * average_damage
 		else:
 			crit_hit_wounds = n_attacks * p_crit_hit * (p_normal_wound+p_crit_wound) * p_fail_save * average_damage
+
 
 
 	avg_wounds = non_crit_hit_wounds + sustained_wounds + crit_hit_wounds
@@ -286,7 +294,10 @@ def hit(bs,hit_mod=0,crit_hit_chance=1/6,rr_hits=False,rr_1s=False,indirect=Fals
 		p_crit_hit = crit_hit_chance + 1/6*crit_hit_chance
 		p_normal_hit = p_normal_hit + 1/6*p_normal_hit
 	
-	return p_normal_hit, p_crit_hit
+
+
+
+	return p_normal_hit, p_crit_hit, p_miss
 
 def wound(s,t,wound_mod=0,crit_wound_chance=1/6,rr_wounds=False,rr_1s=False):
 	#returns the probability of strength s wounding toughness t
@@ -321,7 +332,7 @@ def wound(s,t,wound_mod=0,crit_wound_chance=1/6,rr_wounds=False,rr_1s=False):
 		p_crit_wound = crit_wound_chance + 1/6*crit_wound_chance
 		p_normal_wound = p_normal_wound + 1/6*p_normal_wound
 
-	return p_normal_wound, p_crit_wound
+	return p_normal_wound, p_crit_wound, p_fail
 
 def fail_save(sv,inv,ap,cover=False):
 	sv2 = sv - ap 
@@ -402,6 +413,41 @@ def roll_recursion(n_dice,D_size,roll_results,sum=0): #rolls all possible combin
 		for i in range(1,D_size+1):  
 			roll_recursion(n_dice-1,D_size,roll_results,sum=i+sum)
 	return roll_results
+
+
+def rr_one(p_miss,p_normal_hit,p_crit,shots_fired,reroll_remaining):  #calculates chance of hitting when allowed one reroll.
+	
+	sequences, probabilties = rr_one_sequence(p_miss,p_normal_hit,p_crit,[],1,[],[],shots_fired,reroll_remaining)
+	
+	avg_misses = 0
+	avg_hits = 0
+	avg_crits = 0
+
+	for i, sequence in enumerate(sequences):
+		avg_misses += max(sequence.count('miss')-1,0)*probabilties[i] # -1 because one one of the misses is rerolled and doesn't count as a shot. Max to avoid negative misses.
+		avg_hits += sequence.count('hit')*probabilties[i]
+		avg_crits += sequence.count('crit')*probabilties[i]
+	
+	avg_misses = avg_misses / shots_fired
+	avg_hits = avg_hits / shots_fired
+	avg_crits = avg_crits / shots_fired
+
+	return  avg_misses, avg_hits, avg_crits, 
+
+def rr_one_sequence(p_miss,p_normal_hit,p_crit,current_sequence,current_probability,all_sequences,all_probabilities,shots_remaining,reroll_remaining):
+	if shots_remaining == 0:
+		all_sequences.append(current_sequence)
+		all_probabilities.append(current_probability)
+	else:
+		if reroll_remaining:
+			rr_one_sequence(p_miss,p_normal_hit,p_crit,current_sequence+['miss'], current_probability*p_miss, all_sequences,all_probabilities,shots_remaining, False)
+		else:
+			rr_one_sequence(p_miss,p_normal_hit,p_crit,current_sequence+['miss'], current_probability*p_miss, all_sequences,all_probabilities,shots_remaining-1, reroll_remaining)
+		rr_one_sequence(p_miss,p_normal_hit,p_crit,current_sequence+['hit'], current_probability*p_normal_hit, all_sequences,all_probabilities,shots_remaining-1,reroll_remaining)
+		rr_one_sequence(p_miss,p_normal_hit,p_crit,current_sequence+['crit'], current_probability*p_crit,all_sequences,all_probabilities,shots_remaining-1,reroll_remaining)
+
+	return all_sequences, all_probabilities
+
 
 def plot_unit_dmg_per_pt(attacker_list,target_list,phase):
 	results = np.zeros((len(attacker_list),len(target_list)))
@@ -493,10 +539,10 @@ def run_tests():
 	results.append(test_unit_attack(u_fire_dragons,u_falcon,'shooting',4*8/9*3/4*1*(6.5+6.5+6.5+7+8+9)/6 + 1*8/9*8/9*1*(6.5+6.5+6.5+7+8+9)/6))
 
 	if all(results):
-		print("All tests complete\n")
+		print("All tests passed\n")
 	else:
-		print('Test failed\n')
-
+		print('Test failed. Ending script')
+		raise SystemExit()
 
 
 if __name__ == "__main__":

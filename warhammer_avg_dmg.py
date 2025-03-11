@@ -21,7 +21,6 @@ def main():
 
 	# plot_unit_dmg_per_pt([u_dark_reapers,u_war_walker_starcannons,u_fire_prism_dispersed,u_fire_prism_focused],[u_marines,u_terminators,u_falcon])
 
-	# plot_wpn_dmg(eldar_heavy_weapons,[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers])
 
 	# plot_unit_dmg([u_rangers,u_vyper_shuriken_cannon],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers])
 
@@ -37,6 +36,8 @@ def main():
 	# plot_unit_dmg([u_dire_avengers, u_warp_spiders_2, u_fire_dragons,u_dark_reapers],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 	# plot_unit_dmg_per_pt([u_dire_avengers, u_warp_spiders_2, u_fire_dragons,u_dark_reapers],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 	# plot_unit_dmg_per_pt([u_warlock_conclave],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
+	
+	plot_wpn_dmg(eldar_heavy_weapons,[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers])
 
 	# plot_unit_dmg([u_dire_avengers, u_dire_avengers_blitz, u_warp_spiders_2, u_fire_dragons,u_dark_reapers_1,u_dark_reapers_2,u_warlock_conclave,u_warlock_conclave_blitz],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 
@@ -498,7 +499,7 @@ def plot_wpn_dmg(weapon_list,target_list):
 	results = np.zeros((len(weapon_list),len(target_list)))
 	for i, enemy in enumerate(target_list):
 		for j, weapon in enumerate(weapon_list):
-			results[j,i], efficiency = weapon_attack(weapon,enemy,[],weapon.type)
+			results[j,i], efficiency = weapon_attack(weapon,enemy,{},weapon.type)
 			print('{} vs {}, {:.3f} wounds. {:.0f}% efficiency'.format(weapon.name,enemy.name,results[j,i],efficiency*100))
 		print('')
 	print('----------------------------\n')
@@ -520,30 +521,17 @@ def plot_wpn_dmg(weapon_list,target_list):
 
 def test_unit_attack(attacker,enemy,phase,expected):
 	sim_result = unit_attack(attacker,enemy,phase,verbose=0)
-	if sim_result - expected < 0.001 :
-		result = "Passed"
-	else:
-		result = "Failed"
-	print('{} vs {}. Sim result = {:.4f}. Expected result = {:.4f}. Test {}'.format(attacker.name,enemy.name,sim_result,expected,result))
-	return result == "Passed"
-
+	assert abs(sim_result - expected) < 0.001, '{} vs {}. Sim result = {:.4f}. Expected result = {:.4f}'.format(attacker.name,enemy.name,sim_result,expected)
 
 def run_tests():
-	print('Running tests:')
-	results = []
-	results.append(test_unit_attack(u_dire_avengers,u_marines,'shooting',6*4*5/6*3/6*3/6*1))
-	results.append(test_unit_attack(u_vyper_shuriken_cannon,u_marines,'shooting',3 * 3/6 * 4/6 * 3/6 * 2 + 3 * 1/6 * 6/6 * 3/6 * 2 + 2 * 4/6 * 3/4 * 3/6 * 1))
-	results.append(test_unit_attack(u_howling_banshees,u_falcon,'fight',4*2 * 5/6 * 1/6 * 4/6 * 2 + 3 * 5/6 * 2/6 * 5/6 * 3))
-	results.append(test_unit_attack(u_warlock_conclave,u_marines,'shooting',4 * 5.5 * 1 * 4/6 * 3/6 * 1 + 5 * 1 * 5/6 * 5/6 * 2/6 *2 + 1*4.5*5/6*4/6*4/6*5/3))
-	results.append(test_unit_attack(u_howling_banshees,u_marines,'fight',4* 2 * 5/6 * 4/6 * 4/6 * 2 + 3*5/6*4/6*5/6*2))
-	results.append(test_unit_attack(u_fire_dragons,u_falcon,'shooting',4*8/9*3/4*1*(6.5+6.5+6.5+7+8+9)/6 + 1*8/9*8/9*1*(6.5+6.5+6.5+7+8+9)/6))
-
-	if all(results):
-		print("All tests passed\n")
-	else:
-		print('Test failed. Ending script')
-		raise SystemExit()
-
+	print('Running tests')
+	test_unit_attack(u_dire_avengers,u_marines,'shooting',6*4*5/6*3/6*3/6*1)
+	test_unit_attack(u_vyper_shuriken_cannon,u_marines,'shooting',3 * 3/6 * 4/6 * 3/6 * 2 + 3 * 1/6 * 6/6 * 3/6 * 2 + 2 * 4/6 * 3/4 * 3/6 * 1)
+	test_unit_attack(u_howling_banshees,u_falcon,'fight',4*2 * 5/6 * 1/6 * 4/6 * 2 + 3 * 5/6 * 2/6 * 5/6 * 3)
+	test_unit_attack(u_warlock_conclave,u_marines,'shooting',4 * 5.5 * 1 * 4/6 * 3/6 * 1 + 5 * 1 * 5/6 * 5/6 * 2/6 *2 + 1*4.5*5/6*4/6*4/6*5/3)
+	test_unit_attack(u_howling_banshees,u_marines,'fight',4* 2 * 5/6 * 4/6 * 4/6 * 2 + 3*5/6*4/6*5/6*2)
+	test_unit_attack(u_fire_dragons,u_falcon,'shooting',4*8/9*3/4*1*(6.5+6.5+6.5+7+8+9)/6 + 1*8/9*8/9*1*(6.5+6.5+6.5+7+8+9)/6)
+	print("All tests passed\n")
 
 if __name__ == "__main__":
     main()

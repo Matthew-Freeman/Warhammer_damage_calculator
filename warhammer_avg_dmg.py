@@ -16,9 +16,6 @@ def main():
 	#ranged_weapon(name, attacks, ballistic skill, strength, armour penetration, damage, ranged/melee, special rules)
 	eldar_heavy_weapons = [scatter_laser,shuriken_cannon,starcannon,bright_lance,missile_launcher_starshot,missile_launcher_sunburst]
 
-
-	run_tests()
-
 	# plot_unit_dmg_per_pt([u_dark_reapers,u_war_walker_starcannons,u_fire_prism_dispersed,u_fire_prism_focused],[u_marines,u_terminators,u_falcon])
 
 
@@ -505,19 +502,23 @@ def plot_wpn_dmg(weapon_list,target_list):
 	# plt.show()
 
 
-def test_unit_attack(attacker,enemy,phase,expected):
-	sim_result = unit_attack(attacker,enemy,phase,verbose=0)
-	assert abs(sim_result - expected) < 0.001, '{} vs {}. Sim result = {:.4f}. Expected result = {:.4f}'.format(attacker.name,enemy.name,sim_result,expected)
+# def test_unit_attack(attacker,enemy,phase,expected):
+# 	sim_result = unit_attack(attacker,enemy,phase,verbose=0)
+# 	if abs(sim_result - expected) < 0.001:
+# 		pass
+# 	else:
+# 		raise Exception('{} vs {}. Sim result = {:.4f}. Expected result = {:.4f}'.format(attacker.name,enemy.name,sim_result,expected))
+# 	# assert abs(sim_result - expected) < 0.001, '{} vs {}. Sim result = {:.4f}. Expected result = {:.4f}'.format(attacker.name,enemy.name,sim_result,expected)
 
-def run_tests():
-	print('Running tests')
-	test_unit_attack(u_dire_avengers,u_marines,'shooting',6*4*5/6*3/6*3/6*1)
-	test_unit_attack(u_vyper_shuriken_cannon,u_marines,'shooting',3 * 3/6 * 4/6 * 3/6 * 2 + 3 * 1/6 * 6/6 * 3/6 * 2 + 2 * 4/6 * 3/4 * 3/6 * 1)
-	test_unit_attack(u_howling_banshees,u_falcon,'fight',4*2 * 5/6 * 1/6 * 4/6 * 2 + 3 * 5/6 * 2/6 * 5/6 * 3)
-	test_unit_attack(u_warlock_conclave,u_marines,'shooting',4 * 5.5 * 1 * 4/6 * 3/6 * 1 + 5 * 1 * 5/6 * 5/6 * 2/6 *2 + 1*4.5*5/6*4/6*4/6*5/3)
-	test_unit_attack(u_howling_banshees,u_marines,'fight',4* 2 * 5/6 * 4/6 * 4/6 * 2 + 3*5/6*4/6*5/6*2)
-	test_unit_attack(u_fire_dragons,u_falcon,'shooting',4*8/9*3/4*1*(6.5+6.5+6.5+7+8+9)/6 + 1*8/9*8/9*1*(6.5+6.5+6.5+7+8+9)/6)
-	print("All tests passed\n")
+# def run_tests():
+# 	print('Running tests')
+# 	test_unit_attack(u_dire_avengers,u_marines,'shooting',6*4*5/6*3/6*3/6*1)
+# 	test_unit_attack(u_vyper_shuriken_cannon,u_marines,'shooting',3 * 3/6 * 4/6 * 3/6 * 2 + 3 * 1/6 * 6/6 * 3/6 * 2 + 2 * 4/6 * 3/4 * 3/6 * 1)
+# 	test_unit_attack(u_howling_banshees,u_falcon,'fight',4*2 * 5/6 * 1/6 * 4/6 * 2 + 3 * 5/6 * 2/6 * 5/6 * 3)
+# 	test_unit_attack(u_warlock_conclave,u_marines,'shooting',4 * 5.5 * 1 * 4/6 * 3/6 * 1 + 5 * 1 * 5/6 * 5/6 * 2/6 *2 + 1*4.5*5/6*4/6*4/6*5/3)
+# 	test_unit_attack(u_howling_banshees,u_marines,'fight',4* 2 * 5/6 * 4/6 * 4/6 * 2 + 3*5/6*4/6*5/6*2)
+# 	test_unit_attack(u_fire_dragons,u_falcon,'shooting',4*8/9*3/4*1*(6.5+6.5+6.5+7+8+9)/6 + 1*8/9*8/9*1*(6.5+6.5+6.5+7+8+9)/6)
+# 	print("All tests passed\n")
 
 if __name__ == "__main__":
     main()

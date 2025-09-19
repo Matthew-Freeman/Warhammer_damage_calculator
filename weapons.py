@@ -42,7 +42,7 @@ singing_spear_w = Weapon('Singing Spear',1,3,9,0,3,'ranged')
 singing_spear_f = Weapon('Singing Spear',1,2,9,0,3,'ranged')
 eldritch_storm = Weapon('Eldritch Storm','D6',3,6,-2,'D3','ranged',special={'blast':True})
 
-prism_cannon_dispersed = Weapon('Prism Cannon dispersed','2D6',3,6,-2,2,'ranged',special={'rr_one_hit':True,'rr_one_wound':True}) #haven't coded 1 reroll, so rerolling 1s instead.
+prism_cannon_dispersed = Weapon('Prism Cannon dispersed','2D6',3,6,-2,2,'ranged',special={'rr_one_hit':True,'rr_one_wound':True,'blast':True}) #haven't coded 1 reroll, so rerolling 1s instead.
 prism_cannon_focused = Weapon('Prism Cannon focused',2,3,18,-4,6,'ranged',special={'rr_one_hit':True,'rr_one_wound':True})
 pulse_laser = Weapon('Pulse laser',3,3,9,-2,'D6','ranged')
 

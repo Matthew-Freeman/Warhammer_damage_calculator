@@ -18,7 +18,6 @@ def main():
 
 	# plot_unit_dmg_per_pt([u_dark_reapers,u_war_walker_starcannons,u_fire_prism_dispersed,u_fire_prism_focused],[u_marines,u_terminators,u_falcon])
 
-
 	# plot_unit_dmg([u_rangers,u_vyper_shuriken_cannon],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers])
 
 	# plot_unit_dmg([u_dire_avengers, u_fire_dragons],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
@@ -44,9 +43,10 @@ def main():
 	# 	print(item.name)
 	
 	# plot_wpn_dmg(eldar_heavy_weapons,[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers])
-	# plot_unit_dmg([u_falcon_scatter,u_falcon_lance,u_fire_prism_focused,u_fire_prism_dispersed],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
+	
+	plot_unit_dmg([u_falcon_scatter,u_falcon_lance,u_fire_prism_focused,u_fire_prism_dispersed],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 
-	plot_unit_dmg([u_dire_avengers,u_dire_avengers_asurmen,u_dire_avengers_asurmen_hand,u_dire_avengers_asurmen_blitz,u_dire_avengers_asurmen_hand_blitz],[u_marines,u_guardsmen,u_terminators,u_falcon],'shooting')
+	# plot_unit_dmg([u_dire_avengers,u_dire_avengers_asurmen,u_dire_avengers_asurmen_hand,u_dire_avengers_asurmen_blitz,u_dire_avengers_asurmen_hand_blitz],[u_marines,u_guardsmen,u_terminators,u_falcon],'shooting')
 
 	plt.show()
 
@@ -214,11 +214,13 @@ def weapon_attack(weapon,target_unit,attacker_special_rules,a_type):
 	if 'lethal_hits' in attacker_special_rules:
 		lethal_hits = True
 
-	if 'rr_one_hit' in attacker_special_rules:
-		p_miss, p_normal_hit, p_crit_hit = rr_one(p_miss,p_normal_hit,p_crit_hit,n_attacks,True)
+	# if 'rr_one_hit' in attacker_special_rules:
+	# 	p_miss, p_normal_hit, p_crit_hit = rr_one(p_miss,p_normal_hit,p_crit_hit,n_attacks,True)
 
-	if 'rr_one_wound' in attacker_special_rules:  #this doesn't really work, the maths assumes all successful hits.
-		p_fail_wound, p_normal_wound, p_crit_wound = rr_one(p_fail_wound,p_normal_wound,p_crit_wound,n_attacks,True)		
+	# if 'rr_one_wound' in attacker_special_rules:  #this doesn't really work, the maths assumes all successful hits.
+	# 	p_fail_wound, p_normal_wound, p_crit_wound = rr_one(p_fail_wound,p_normal_wound,p_crit_wound,n_attacks,True)		
+
+
 
 	p_crit_fail_save = p_fail_save
 	if 'devastating_wounds' in attacker_special_rules:
@@ -236,7 +238,21 @@ def weapon_attack(weapon,target_unit,attacker_special_rules,a_type):
 						 + n_attacks * p_crit_hit * p_crit_wound   * p_crit_fail_save * average_damage)
 
 	avg_wounds = non_crit_hit_wounds + sustained_wounds + crit_hit_wounds
+
+
+	if 'rr_one_hit' in attacker_special_rules and 'rr_one_wound' in attacker_special_rules: #specially for Fire Prisms
+		print('Rerolling one hit and wound, other special rules not implemented')
+		#sustained, lethal, or devastating are not implemented
+		rerolls = 1 #only works with one reroll
+		probability = 1
+		n_attacks = int(n_attacks)  #can't handle a random number of attacks
+		wound_probabilities = [0]*(n_attacks+1)
+		hits_with_1_reroll(n_attacks,p_normal_hit+p_crit_hit,rerolls,probability,wound_probabilities,p_normal_wound+p_crit_wound)
+		expected_wounds = sum([i * wound_probabilities[i] for i in range(n_attacks+1)])
+		avg_wounds = expected_wounds * p_fail_save * average_damage
+
 	return avg_wounds, efficiency
+
 
 
 def avg_attacks(a,weapon,size): #Returns average number of shots fired
@@ -431,6 +447,25 @@ def rr_one_sequence(p_miss,p_normal_hit,p_crit,current_sequence,current_probabil
 		rr_one_sequence(p_miss,p_normal_hit,p_crit,current_sequence+['crit'], current_probability*p_crit,all_sequences,all_probabilities,shots_remaining-1,reroll_remaining)
 
 	return all_sequences, all_probabilities
+
+
+def hits_with_1_reroll(n,p_hit,r,probability,wound_probabilities,p_wound):
+	#takes in some number n of attempts, with probability p of success, and number r of rerolls available. Start with r = 1.
+	for successes in range(n+r,-1,-1):
+		current_probability = probability * p_hit**successes * (1-p_hit)**(n+r-successes) * n_choose_k(n+r,successes)
+		actual_successes = min(successes,n)
+		# print("Probability of {} successes = {}".format(actual_successes,current_probability))
+		wounds_with_1_reroll(actual_successes,p_wound,r,current_probability,wound_probabilities)
+
+def wounds_with_1_reroll(n,p_wound,r,probability,wound_probabilities):
+	for successes in range(n+r,-1,-1):
+		current_probability = probability * p_wound**successes * (1-p_wound)**(n+r-successes) * n_choose_k(n+r,successes)
+		actual_successes = min(successes,n)
+		# print("Probability of {} successes = {}".format(actual_successes,current_probability))
+		wound_probabilities[actual_successes] += current_probability
+
+def n_choose_k(n,k):
+	return math.factorial(n) / (math.factorial(k)*math.factorial(n-k))
 
 
 def plot_unit_dmg_per_pt(attacker_list,target_list,phase):

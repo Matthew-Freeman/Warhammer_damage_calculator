@@ -23,6 +23,7 @@ missile_launcher_starshot = Weapon('Missile launcher - starshot',1, 3, 10,-2,'D6
 missile_launcher_sunburst = Weapon('Missile launcher - sunburst','D6', 3, 4, -1,1,'ranged',special={'blast':True})
 bright_lance = Weapon('Bright Lance',1, 3, 12, -3, 'D6+2','ranged')
 
+avenger_catapult = Weapon('Avenger catapult',4, 3, 4, -1, 1,'ranged',special={'sustained_hits':1})
 death_spinner = Weapon('Death spinner','D6','N/A',4,-1,1,'ranged',special={'torrent':True,'ignores_cover':True})
 death_weavers = Weapon('Death weavers','D6','N/A',4,-1,1,'ranged',special={'torrent':True,'ignores_cover':True,'twin_linked':True})
 spinneret_rifle = Weapon('Spinneret rifle','D6','N/A',5,-1,1,'ranged',special={'torrent':True,'ignores_cover':True})
@@ -32,7 +33,6 @@ reaper_launcher_starshot = Weapon('Reaper launcher - starshot',1, 3, 10, -2, 3,'
 reaper_launcher_starswarm = Weapon('Reaper launcher - starswarm',2, 3, 5, -2, 1,'ranged',special={'ignores_cover':True,'ignores_hit_mod':True})
 reaper_missile_launcher_sunburst = Weapon('Missile launcher - sunburst','D6', 2, 4, -1,1,'ranged',special={'blast':True,'ignores_cover':True,'ignores_hit_mod':True})
 reaper_missile_launcher_starshot = Weapon('Missile launcher - starshot',1, 2, 10,-2,'D6','ranged',special={'ignores_cover':True,'ignores_hit_mod':True})
-avenger_catapult = Weapon('Avenger catapult',4, 3, 4, -1, 1,'ranged',special={'sustained_hits':1})
 
 
 destructor_1 = Weapon('Destructor','D6', 'N/A', 5, -1, 1,'ranged',special={'torrent':True})
@@ -63,3 +63,7 @@ aspect_close_combat_weapon = Weapon('Close combat weapon',2,3,3,0,1,'melee',spec
 wraithcannon = Weapon('Wraithcannon',1,4,14,-4,'D6+1','ranged')
 d_scythe = Weapon('D-scythe','D6','N/A',7,-3,1,'ranged',special={'torrent':True})
 shuriken_cannon_wl = Weapon('Shuriken cannon',3, 4, 6, -1, 2,'ranged',special={'lethal_hits':True})
+
+bloody_twins = Weapon('Bloody twins',6,2,5,-1,2,'ranged',special={'sustained_hits':1})
+bloody_twins_hand = Weapon('Bloody twins',6,2,5,-1,3,'ranged',special={'sustained_hits':1,'devastating_wounds':True,'anti_infantry':5})
+sword_of_asur = Weapon('Sword of Asur',6,2,6,-3,3,'melee',special={'devastating_wounds':True})

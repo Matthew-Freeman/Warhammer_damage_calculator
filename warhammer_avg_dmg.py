@@ -37,16 +37,19 @@ def main():
 	# plot_unit_dmg_per_pt([u_dire_avengers, u_warp_spiders_2, u_fire_dragons,u_dark_reapers],[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 	# plot_unit_dmg_per_pt([u_warlock_conclave],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 	
-	plot_wpn_dmg(eldar_heavy_weapons,[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers])
 
 	# plot_unit_dmg([u_dire_avengers, u_dire_avengers_blitz, u_warp_spiders_2, u_fire_dragons,u_dark_reapers_1,u_dark_reapers_2,u_warlock_conclave,u_warlock_conclave_blitz],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 
-	plot_unit_dmg([u_falcon_scatter,u_falcon_lance,u_fire_prism_focused,u_fire_prism_dispersed],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 
 	# plot_unit_dmg([u_wraithguard,u_wraithguard_blitz,u_wraithlord],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
 
 	# for item in Weapon.list:
 	# 	print(item.name)
+	
+	# plot_wpn_dmg(eldar_heavy_weapons,[u_marines,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers])
+	# plot_unit_dmg([u_falcon_scatter,u_falcon_lance,u_fire_prism_focused,u_fire_prism_dispersed],[u_marines,u_marines_cover,u_guardsmen,u_dire_avengers,u_terminators, u_falcon,u_lokhust_destroyers],'shooting')
+
+	plot_unit_dmg([u_dire_avengers,u_dire_avengers_asurmen,u_dire_avengers_asurmen_hand,u_dire_avengers_asurmen_blitz,u_dire_avengers_asurmen_hand_blitz],[u_marines,u_guardsmen,u_terminators,u_falcon],'shooting')
 
 	plt.show()
 
@@ -114,8 +117,6 @@ def weapon_attack(weapon,target_unit,attacker_special_rules,a_type):
 	if '+1h' in attacker_special_rules:
 		hit_mod +=1
 
-
-	
 	cover = False
 	if 'indirect' in attacker_special_rules:
 		hit_mod -=1
@@ -205,8 +206,6 @@ def weapon_attack(weapon,target_unit,attacker_special_rules,a_type):
 		elif target_unit.tag in attacker_special_rules['rr_damage']:
 			rr_damage = True
 
-
-
 	average_damage, efficiency = avg_damage(weapon,target_model,mortal=False,rr_damage=rr_damage)
 	# mortal_damage, efficiency = avg_damage(weapon,target_model,mortal=True)
 	
@@ -214,12 +213,9 @@ def weapon_attack(weapon,target_unit,attacker_special_rules,a_type):
 	if 'sustained_hits' in attacker_special_rules:
 		sustained_hits = attacker_special_rules['sustained_hits']
 
-
-
 	lethal_hits = False
 	if 'lethal_hits' in attacker_special_rules:
 		lethal_hits = True
-
 
 	if 'rr_one_hit' in attacker_special_rules:
 		p_miss, p_normal_hit, p_crit_hit = rr_one(p_miss,p_normal_hit,p_crit_hit,n_attacks,True)
@@ -227,26 +223,20 @@ def weapon_attack(weapon,target_unit,attacker_special_rules,a_type):
 	if 'rr_one_wound' in attacker_special_rules:  #this doesn't really work, the maths assumes all successful hits.
 		p_fail_wound, p_normal_wound, p_crit_wound = rr_one(p_fail_wound,p_normal_wound,p_crit_wound,n_attacks,True)		
 
+	p_crit_fail_save = p_fail_save
 	if 'devastating_wounds' in attacker_special_rules:
-		non_crit_hit_wounds = (n_attacks * p_normal_hit * p_normal_wound * p_fail_save * average_damage
-						+ n_attacks * p_normal_hit * p_crit_wound * 1 * average_damage)
-		sustained_wounds = (n_attacks * p_crit_hit*sustained_hits * p_normal_wound * p_fail_save * average_damage
-						+ n_attacks * p_crit_hit*sustained_hits * p_crit_wound * 1 * average_damage)
-		if lethal_hits:
-			crit_hit_wounds = n_attacks * p_crit_hit * 1 * p_fail_save * average_damage
-		else:
-			crit_hit_wounds = (n_attacks * p_crit_hit * p_normal_wound * p_fail_save * average_damage
-							+ n_attacks * p_crit_hit * p_crit_wound * 1 * average_damage)
+		p_crit_fail_save = 1
+	
+	non_crit_hit_wounds = (n_attacks * p_normal_hit                * p_normal_wound * p_fail_save      * average_damage
+					     + n_attacks * p_normal_hit                * p_crit_wound   * p_crit_fail_save * average_damage)
+	sustained_wounds =    (n_attacks * p_crit_hit * sustained_hits * p_normal_wound * p_fail_save      * average_damage
+					     + n_attacks * p_crit_hit * sustained_hits * p_crit_wound   * p_crit_fail_save * average_damage)
 
+	if lethal_hits:
+		crit_hit_wounds = (n_attacks * p_crit_hit * 1              * p_fail_save * average_damage)
 	else:
-		non_crit_hit_wounds = n_attacks * p_normal_hit * (p_normal_wound+p_crit_wound) * p_fail_save * average_damage
-		sustained_wounds = n_attacks * p_crit_hit*sustained_hits * (p_normal_wound+p_crit_wound) * p_fail_save * average_damage
-		if lethal_hits:
-			crit_hit_wounds = n_attacks * p_crit_hit * 1 * p_fail_save * average_damage
-		else:
-			crit_hit_wounds = n_attacks * p_crit_hit * (p_normal_wound+p_crit_wound) * p_fail_save * average_damage
-
-
+		crit_hit_wounds = (n_attacks * p_crit_hit * p_normal_wound * p_fail_save      * average_damage
+						 + n_attacks * p_crit_hit * p_crit_wound   * p_crit_fail_save * average_damage)
 
 	avg_wounds = non_crit_hit_wounds + sustained_wounds + crit_hit_wounds
 	return avg_wounds, efficiency
@@ -295,9 +285,6 @@ def hit(bs,hit_mod=0,crit_hit_chance=1/6,rr_hits=False,rr_1s=False,indirect=Fals
 		p_crit_hit = crit_hit_chance + 1/6*crit_hit_chance
 		p_normal_hit = p_normal_hit + 1/6*p_normal_hit
 	
-
-
-
 	return p_normal_hit, p_crit_hit, p_miss
 
 def wound(s,t,wound_mod=0,crit_wound_chance=1/6,rr_wounds=False,rr_1s=False):
@@ -336,19 +323,18 @@ def wound(s,t,wound_mod=0,crit_wound_chance=1/6,rr_wounds=False,rr_1s=False):
 	return p_normal_wound, p_crit_wound, p_fail
 
 def fail_save(sv,inv,ap,cover=False):
-	sv2 = sv - ap 
+	sv = sv - ap 
 	if cover:
-		sv2-= 1
-	if inv is not None and inv < sv2:
-		sv3 = inv
-	else:
-		sv3 = sv2
-	if sv3 > 7:
+		sv-= 1
+	if inv is not None and inv < sv:
+		sv = inv
+
+	if sv > 7:
 		p = 1
-	elif sv3 <= 1:
+	elif sv <= 1:
 		p = 1/6
 	else:
-		p = (sv3-1)/6
+		p = (sv-1)/6
 	return p
 
 def avg_damage(weapon,target_model,rr_damage=False,mortal=False):

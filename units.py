@@ -73,6 +73,12 @@ m_dire_avenger_exarch = Model('Dire Avenger Exarch',t=3,w=2,sv=4,guns=[avenger_c
 u_dire_avengers = Unit('5 Dire Avengers',[m_dire_avenger]*4 + [m_dire_avenger_exarch],tag='infantry',cost=75)
 u_dire_avengers_blitz = Unit('5 Dire Avengers Blitzing Firepower',[m_dire_avenger]*4 + [m_dire_avenger_exarch],tag='infantry',special={'critical_hits':5},cost=75)
 
+m_asurmen = Model('Asurmen', t=3,w=5,sv=2,guns=[bloody_twins],swords=[sword_of_asur],invuln=4,special={})
+m_asurmen_hand = Model('Asurmen', t=3,w=5,sv=2,guns=[bloody_twins_hand],swords=[sword_of_asur],invuln=4,special={})
+u_dire_avengers_asurmen = Unit('5 Dire Avengers with Asurmen',[m_dire_avenger]*4 + [m_dire_avenger_exarch] + [m_asurmen],tag='infantry',cost=75+135)
+u_dire_avengers_asurmen_hand = Unit('5 Dire Avengers, Asurmen ability',[m_dire_avenger]*4 + [m_dire_avenger_exarch] + [m_asurmen_hand],tag='infantry',cost=75+135)
+u_dire_avengers_asurmen_blitz = Unit('5 Dire Avengers, Asurmen, blitz',[m_dire_avenger]*4 + [m_dire_avenger_exarch] + [m_asurmen],tag='infantry',special={'critical_hits':5},cost=75+135)
+u_dire_avengers_asurmen_hand_blitz = Unit('5 Dire Avengers, Asurmen ability, blitz',[m_dire_avenger]*4 + [m_dire_avenger_exarch] + [m_asurmen_hand],tag='infantry',special={'critical_hits':5},cost=75+135)
 
 
 m_fire_dragon = Model('Fire Dragon',t=3,w=1,sv=3,guns=[dragon_fusion_gun],swords=[aspect_close_combat_weapon],invuln=5,special={'rr_hits':['monster','vehicle'],'rr_wounds':['monster','vehicle'],'rr_damage':['monster','vehicle']})
